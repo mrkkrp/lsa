@@ -19,20 +19,21 @@
 
 #include "lsa.h"
 
-void analyzeFile (const char *filename)
+void *analyzeFile (void *arg)
 {
+  const char *filename = (char *)arg;
   AFfilehandle h = afOpenFile (filename, "r", NULL);
   if (h == AF_NULL_FILEHANDLE)
     {
       printf ("could not open \"%s\";\n", filename);
-      return;
+      return NULL;
     }
   int rere;
   int format = afGetFileFormat(h, &rere);
   if (format == AF_FILE_UNKNOWN)
     {
       printf ("format of \"%s\" is not supported;\n", filename);
-      return;
+      return NULL;
     }
   else
     {
@@ -41,4 +42,5 @@ void analyzeFile (const char *filename)
   double sampleRate = afGetRate (h, AF_DEFAULT_TRACK);
   printf ("sample rate is: %f\n", sampleRate);
   afCloseFile (h);
+  return NULL;
 }

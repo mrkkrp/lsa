@@ -22,10 +22,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <audiofile.h>
+#include <pthread.h>
 
 /* some declarations */
 
-void analyzeFile (const char *);
+void *analyzeFile (void *);
 
 #endif /* LSAH */
