@@ -32,27 +32,46 @@
   "GNU General Public License for more details.\n\n"                    \
   "You should have received a copy of the GNU General Public License\n" \
   "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
+#define LSA_HELP "lsa - list properties of audio files\n\n"             \
+  "Usage: lsa [--version|--license|--help|--formats|FILES]\n\n" \
+  "Available options:\n"                                                \
+  "  --help                  Show this help text\n"                     \
+  "  --license               Show license of the program\n"             \
+  "  --version               Show version of the program\n"             \
+  "  --formats               List all supported formats of audio files\n"
+#define LSA_FORMATS "Supported file formats:\n"   \
+  "  * AIFF/AIFF-C (.aiff, .aifc)\n"                \
+  "  * WAVE (.wav)\n"                               \
+  "  * NeXT .snd/Sun .au (.snd, .au)\n"             \
+  "  * Berkeley/IRCAM/CARL Sound File (.sf)\n"      \
+  "  * Audio Visual Research (.avr)\n"              \
+  "  * Amiga IFF/8SVX (.iff)\n"                     \
+  "  * Sample Vision (.smp)\n"                      \
+  "  * Creative Voice (.voc)\n"                     \
+  "  * NIST SPHERE (.wav)\n"                        \
+  "  * Core Audio Format (.caf)\n"                  \
+  "  * FLAC (.flac)\n"
 
 enum
   { OPT_DEFAULT = 0,
-    OPT_VERSION = 1,
+    OPT_HELP    = 1,
     OPT_LICENSE = 2,
-    OPT_HELP    = 3,
+    OPT_VERSION = 3,
     OPT_FORMATS = 4 };
 
 struct option options[] =
-  { { "version", no_argument, NULL, OPT_VERSION },
+  { { "help"   , no_argument, NULL, OPT_HELP    },
     { "license", no_argument, NULL, OPT_LICENSE },
-    { "help"   , no_argument, NULL, OPT_HELP },
+    { "version", no_argument, NULL, OPT_VERSION },
     { "formats", no_argument, NULL, OPT_FORMATS },
     { NULL     , 0,           NULL, OPT_DEFAULT } };
 
 int main (int argc, char **argv)
 {
   int optIndex = getopt_long (argc, argv, "", options, NULL);
-  if (optIndex == OPT_VERSION)
+  if (optIndex == OPT_HELP)
     {
-      printf ("LSA %s, built %s %s\n", LSA_VERSION, __DATE__, __TIME__);
+      printf (LSA_HELP);
       return EXIT_SUCCESS;
     }
   if (optIndex == OPT_LICENSE)
@@ -60,14 +79,14 @@ int main (int argc, char **argv)
       printf (LSA_LICENSE);
       return EXIT_SUCCESS;
     }
-  if (optIndex == OPT_HELP)
+  if (optIndex == OPT_VERSION)
     {
-      printf ("help blah;\n");
+      printf ("LSA %s, built %s %s\n", LSA_VERSION, __DATE__, __TIME__);
       return EXIT_SUCCESS;
     }
   if (optIndex == OPT_FORMATS)
     {
-      printf ("formats blah;\n");
+      printf (LSA_FORMATS);
       return EXIT_SUCCESS;
     }
   int i;
