@@ -19,28 +19,22 @@
 
 #include "lsa.h"
 
-void *analyzeFile (void *arg)
+char *analyzeFile (char *path)
+/* This is the place where all analyze happens. This is incomplete version
+   of the function. TODO: finish it. */
 {
-  const char *filename = (char *)arg;
-  AFfilehandle h = afOpenFile (filename, "r", NULL);
-  if (h == AF_NULL_FILEHANDLE)
-    {
-      printf ("could not open \"%s\";\n", filename);
-      return NULL;
-    }
-  int rere;
-  int format = afGetFileFormat(h, &rere);
-  if (format == AF_FILE_UNKNOWN)
-    {
-      printf ("format of \"%s\" is not supported;\n", filename);
-      return NULL;
-    }
-  else
-    {
-      printf ("here it is: %d\n", format);
-    }
-  double sampleRate = afGetRate (h, AF_DEFAULT_TRACK);
-  printf ("sample rate is: %f\n", sampleRate);
+  AFfilehandle h = afOpenFile ((const char *)path, "r", NULL);
+  if (h == AF_NULL_FILEHANDLE) return "failed item";
+  char *filename = path + sepPos;
+  *(filename + BASENAME_VISIBLE_LEN) = '\0';
+  double rate = afGetRate (h, AF_DEFAULT_TRACK);
+  int channels = afGetChannels (h, AF_DEFAULT_TRACK);
+  /* int samples = afGetFrameCount(h, AF_DEFAULT_TRACK); */
+  char *result = malloc (sizeof (char) * OUTPUT_MAX_LEN);
+  sprintf (result, "%-*s %-6d %-2d", BASENAME_VISIBLE_LEN,
+           filename,
+           (int)rate,
+           channels);
   afCloseFile (h);
-  return NULL;
+  return result;
 }
