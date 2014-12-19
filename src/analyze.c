@@ -19,22 +19,18 @@
 
 #include "lsa.h"
 
-char *analyzeFile (char *path)
+struct audioParams *analyzeFile (char *path)
 /* This is the place where all analyze happens. This is incomplete version
    of the function. TODO: finish it. */
 {
   AFfilehandle h = afOpenFile ((const char *)path, "r", NULL);
-  if (h == AF_NULL_FILEHANDLE) return "failed item";
-  char *filename = path + sepPos;
-  *(filename + BASENAME_VISIBLE_LEN) = '\0';
-  double rate = afGetRate (h, AF_DEFAULT_TRACK);
+  if (h == AF_NULL_FILEHANDLE) return NULL;
+  int rate = (int)afGetRate (h, AF_DEFAULT_TRACK);
   int channels = afGetChannels (h, AF_DEFAULT_TRACK);
   /* int samples = afGetFrameCount(h, AF_DEFAULT_TRACK); */
-  char *result = malloc (sizeof (char) * OUTPUT_MAX_LEN);
-  sprintf (result, "%-*s %-6d %-2d", BASENAME_VISIBLE_LEN,
-           filename,
-           (int)rate,
-           channels);
+  struct audioParams *result = malloc (sizeof (*result));
+  result->rate = rate;
+  result->channels = channels;
   afCloseFile (h);
   return result;
 }

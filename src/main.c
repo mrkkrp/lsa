@@ -56,8 +56,9 @@ long sepPos,  /* this value is set from main, it's index of first char of
 struct dirent **items; /* these structures hold information about files in
                           target directory that are suitable for processing */
 pthread_mutex_t lock;  /* mutex lock */
-char **outputStrs;     /* vector of pointers to strings that contain
-                          descriptions for individual files */
+struct audioParams **outputs; /* vector of pointers to structures that
+                                 contain descriptions for individual
+                                 files */
 
 /* functions */
 
@@ -65,9 +66,9 @@ static void *runThread (void *dir)
 /* This function describes behavior of an individual thread. It takes new
    item from vector of items (if there's any), updates name of file 'dir',
    calls function 'analyzeFile' with this name and takes result of this
-   call. Note that 'analyzeFile' allocates memory for its result string with
-   'malloc'. Finally this routine copies pointer to result string to
-   'outputStrs'. */
+   call. Note that 'analyzeFile' allocates memory for its result structure
+   with 'malloc'. Finally this routine copies pointer to result string to
+   'outputs'. */
 {
   while (prcIndex < itemsTotal)
     {
@@ -75,9 +76,10 @@ static void *runThread (void *dir)
       long i = prcIndex++;
       pthread_mutex_unlock (&lock);
       *((char *)dir + sepPos) = '\0';
-      strcat ((char *)dir, (*(items + i))->d_name);
-      char *result = analyzeFile ((char *)dir);
-      *(outputStrs + i) = result;
+      strcat ((char *)dir, (**(items + i)).d_name);
+      *(outputs + i) = analyzeFile ((char *)dir);
+      if (*(outputs +i))
+        (**(outputs + i)).name = (**(items + i)).d_name;
     }
   free (dir);
   return NULL;
@@ -91,7 +93,7 @@ static const char *getExt(const char *arg)
     return dot + 1;
 }
 
-static int extfilter (const struct dirent *arg)
+static int extFilter (const struct dirent *arg)
 /* This function filters every item of type 'struct dirent'. It only accepts
    regular files and links and those files must have one of supported
    extensions. */
@@ -99,17 +101,18 @@ static int extfilter (const struct dirent *arg)
   if (arg->d_type != DT_REG && arg->d_type != DT_LNK) return 0;
   const char *ext = getExt (arg->d_name);
   unsigned int i;
-  for (i = 0; i < (sizeof(sExts) / sizeof (sExts[0])); i++)
+  for (i = 0; i < (sizeof (sExts) / sizeof (sExts[0])); i++)
     {
       if (!strcmp (ext, *(sExts + i))) return 1;
     }
   return 0;
 }
 
-static int cmpstringp (const void *str0, const void *str1)
+static int cmpStrp (const void *str0, const void *str1)
 /* This is wrapper around 'strcmp' to sort strings with 'qsort'. */
 {
-  return strcmp(*(char * const *)str0, *(char * const *) str1);
+  return strcmp((**(struct audioParams **)str0).name,
+                (**(struct audioParams **)str1).name);
 }
 
 /* main */
@@ -164,9 +167,9 @@ int main (int argc, char **argv)
     }
   /* Scan working directory, save number of items we can process and items
      themselves in global variables. */
-  itemsTotal = scandir (wdir, &items, extfilter, NULL);
-  /* Allocate memory for vector of result strings. */
-  outputStrs = malloc (sizeof (char *) * itemsTotal);
+  itemsTotal = scandir (wdir, &items, extFilter, NULL);
+  /* Allocate memory for vector of result structures. */
+  outputs = malloc (sizeof (struct audioParams *) * itemsTotal);
   /* Get number of cores, start a thread per core, every thread gets string
      with copy of working directory with enough space to 'strcat' base names
      later. We also need to allocate enough space for a vector of all thread
@@ -189,23 +192,24 @@ int main (int argc, char **argv)
     }
   pthread_mutex_destroy(&lock);
   free (tidv);
+  /* Now, it's time to sort our strings and print results. */
+  qsort (outputs, itemsTotal, sizeof (struct audioParams *), cmpStrp);
+  printf ("%-6s %-2s file\n", "rate", "ch");
   for (i = 0; i < itemsTotal; i++)
     {
+      struct audioParams *a = *(outputs + i);
+      if (a)
+        {
+          printf ("%-6d %-2d %s\n",
+                  a->rate,
+                  a->channels,
+                  a->name);
+          free (a);
+        }
       free (*(items + i));
     }
+  free (outputs);
   free (items);
   free (wdir);
-  /* Now, it's time to sort our strings and print results. */
-  qsort (outputStrs, itemsTotal, sizeof (char *), cmpstringp);
-  printf ("%-*s %-6s %-2s\n", BASENAME_VISIBLE_LEN,
-          "file",
-          "rate",
-          "ch");
-  for (i = 0; i < itemsTotal; i++)
-    {
-      printf ("%s\n", *(outputStrs + i));
-      free (*(outputStrs + i));
-    }
-  free (outputStrs);
   return EXIT_SUCCESS;
 }

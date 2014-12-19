@@ -51,12 +51,20 @@
   "  --license               Show license of the program\n"             \
   "  --version               Show version of the program\n"
 #define BASENAME_MAX_LEN     256
-#define BASENAME_VISIBLE_LEN 32
-#define OUTPUT_MAX_LEN       81
+
+/* structures */
+
+struct audioParams /* this structure holds various parameters of files that
+                      have been analyzed */
+{
+  int rate;
+  int  channels;
+  char *name;
+};
+
 
 /* some declarations */
 
-extern long sepPos;
-char *analyzeFile (char *);
+struct audioParams *analyzeFile (char *);
 
 #endif /* LSA_H */
