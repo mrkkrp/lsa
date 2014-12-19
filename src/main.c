@@ -60,60 +60,13 @@ struct audioParams **outputs; /* vector of pointers to structures that
                                  contain descriptions for individual
                                  files */
 
-/* functions */
+/* declarations */
 
-static void *runThread (void *dir)
-/* This function describes behavior of an individual thread. It takes new
-   item from vector of items (if there's any), updates name of file 'dir',
-   calls function 'analyzeFile' with this name and takes result of this
-   call. Note that 'analyzeFile' allocates memory for its result structure
-   with 'malloc'. Finally this routine copies pointer to result string to
-   'outputs'. */
-{
-  while (prcIndex < itemsTotal)
-    {
-      pthread_mutex_lock (&lock);
-      long i = prcIndex++;
-      pthread_mutex_unlock (&lock);
-      *((char *)dir + sepPos) = '\0';
-      strcat ((char *)dir, (**(items + i)).d_name);
-      *(outputs + i) = analyzeFile ((char *)dir);
-      if (*(outputs +i))
-        (**(outputs + i)).name = (**(items + i)).d_name;
-    }
-  free (dir);
-  return NULL;
-}
-
-static const char *getExt(const char *arg)
-/* This function extracts extension from a file name. */
-{
-    const char *dot = strrchr(arg, '.');
-    if (!dot || dot == arg) return "";
-    return dot + 1;
-}
-
-static int extFilter (const struct dirent *arg)
-/* This function filters every item of type 'struct dirent'. It only accepts
-   regular files and links and those files must have one of supported
-   extensions. */
-{
-  if (arg->d_type != DT_REG && arg->d_type != DT_LNK) return 0;
-  const char *ext = getExt (arg->d_name);
-  unsigned int i;
-  for (i = 0; i < (sizeof (sExts) / sizeof (sExts[0])); i++)
-    {
-      if (!strcmp (ext, *(sExts + i))) return 1;
-    }
-  return 0;
-}
-
-static int cmpStrp (const void *str0, const void *str1)
-/* This is wrapper around 'strcmp' to sort strings with 'qsort'. */
-{
-  return strcmp((**(struct audioParams **)str0).name,
-                (**(struct audioParams **)str1).name);
-}
+static void *runThread (void *);
+static const char *getExt(const char *);
+static int extFilter (const struct dirent *);
+static int cmpStrp (const void *, const void *);
+static void decomposeTime (int, int *, int *, int *);
 
 /* main */
 
@@ -194,15 +147,30 @@ int main (int argc, char **argv)
   free (tidv);
   /* Now, it's time to sort our strings and print results. */
   qsort (outputs, itemsTotal, sizeof (struct audioParams *), cmpStrp);
-  printf ("%-6s %-2s file\n", "rate", "ch");
+  printf ("rate   B  f # mm:ss file\n");
   for (i = 0; i < itemsTotal; i++)
     {
       struct audioParams *a = *(outputs + i);
       if (a)
         {
-          printf ("%-6d %-2d %s\n",
+          char fmt;
+          switch (a->format)
+            {
+            case AF_SAMPFMT_TWOSCOMP : fmt = 's'; break;
+            case AF_SAMPFMT_UNSIGNED : fmt = 'u'; break;
+            case AF_SAMPFMT_FLOAT    : fmt = 'f'; break;
+            case AF_SAMPFMT_DOUBLE   : fmt = 'd'; break;
+            }
+          int dur_h, dur_m, dur_s;
+          decomposeTime((int)a->duration, &dur_h, &dur_m, &dur_s);
+          printf ("%-6d %-2d %c %d %02d:%02d %s\n",
                   a->rate,
+                  a->width,
+                  fmt,
                   a->channels,
+                  /* dur_h, */
+                  dur_m,
+                  dur_s,
                   a->name);
           free (a);
         }
@@ -212,4 +180,68 @@ int main (int argc, char **argv)
   free (items);
   free (wdir);
   return EXIT_SUCCESS;
+}
+
+/* functions */
+
+static void *runThread (void *dir)
+/* This function describes behavior of an individual thread. It takes new
+   item from vector of items (if there's any), updates name of file 'dir',
+   calls function 'analyzeFile' with this name and takes result of this
+   call. Note that 'analyzeFile' allocates memory for its result structure
+   with 'malloc'. Finally this routine copies pointer to result string to
+   'outputs'. */
+{
+  while (prcIndex < itemsTotal)
+    {
+      pthread_mutex_lock (&lock);
+      long i = prcIndex++;
+      pthread_mutex_unlock (&lock);
+      *((char *)dir + sepPos) = '\0';
+      strcat ((char *)dir, (**(items + i)).d_name);
+      *(outputs + i) = analyzeFile ((char *)dir);
+      if (*(outputs +i))
+        (**(outputs + i)).name = (**(items + i)).d_name;
+    }
+  free (dir);
+  return NULL;
+}
+
+static const char *getExt(const char *arg)
+/* This function extracts extension from a file name. */
+{
+    const char *dot = strrchr(arg, '.');
+    if (!dot || dot == arg) return "";
+    return dot + 1;
+}
+
+static int extFilter (const struct dirent *arg)
+/* This function filters every item of type 'struct dirent'. It only accepts
+   regular files and links and those files must have one of supported
+   extensions. */
+{
+  if (arg->d_type != DT_REG && arg->d_type != DT_LNK) return 0;
+  const char *ext = getExt (arg->d_name);
+  unsigned int i;
+  for (i = 0; i < (sizeof (sExts) / sizeof (sExts[0])); i++)
+    {
+      if (!strcmp (ext, *(sExts + i))) return 1;
+    }
+  return 0;
+}
+
+static int cmpStrp (const void *a, const void *b)
+/* This is wrapper around 'strcmp' to sort strings with 'qsort'. */
+{
+  return strcmp((**(struct audioParams **)a).name,
+                (**(struct audioParams **)b).name);
+}
+
+static void decomposeTime (int arg, int *h, int *m, int *s)
+{
+  *h = arg / 3600; /* hours */
+  arg -= *h * 3600;
+  *m = arg / 60; /* minutes */
+  arg -= *m * 60;
+  *s = arg;
 }
