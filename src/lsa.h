@@ -58,10 +58,12 @@ struct audioParams /* this structure holds various parameters of files that
                       have been analyzed */
 {
   int rate;
-  int  channels;
+  int width;
+  int format;
+  int channels;
+  double duration;
   char *name;
 };
-
 
 /* some declarations */
 

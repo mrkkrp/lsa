@@ -27,9 +27,14 @@ struct audioParams *analyzeFile (char *path)
   if (h == AF_NULL_FILEHANDLE) return NULL;
   int rate = (int)afGetRate (h, AF_DEFAULT_TRACK);
   int channels = afGetChannels (h, AF_DEFAULT_TRACK);
-  /* int samples = afGetFrameCount(h, AF_DEFAULT_TRACK); */
+  int format, width;
+  afGetSampleFormat (h, AF_DEFAULT_TRACK, &format, &width);
+  int samples = afGetFrameCount(h, AF_DEFAULT_TRACK);
   struct audioParams *result = malloc (sizeof (*result));
   result->rate = rate;
+  result->width = width;
+  result->format = format;
+  result->duration = (double)samples / rate;
   result->channels = channels;
   afCloseFile (h);
   return result;
