@@ -61,7 +61,7 @@ struct audioParams /* this structure holds various parameters of files that
   int width;
   int format;
   int channels;
-  double duration;
+  unsigned long frames;
   char *name;
 };
 

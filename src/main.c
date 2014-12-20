@@ -66,7 +66,7 @@ static void *runThread (void *);
 static const char *getExt(const char *);
 static int extFilter (const struct dirent *);
 static int cmpStrp (const void *, const void *);
-static void decomposeTime (int, int *, int *, int *);
+static void decomposeTime (long, int *, int *, int *);
 
 /* main */
 
@@ -92,7 +92,7 @@ int main (int argc, char **argv)
     }
   /* Find out current working directory, max length of string for full file
      name, set 'sepPos'. */
-  char *temp = argc >= 2 ? *(argv + 1) : getcwd (NULL, 0);
+  char *temp = argc >= 2 ? *(argv + 1) : getcwd (NULL, 0); // !!
   long temp_len = strlen (temp);
   if (!temp_len)
     {
@@ -110,7 +110,7 @@ int main (int argc, char **argv)
       *(wdir + sepPos) = '\0';
     }
   else sepPos = temp_len;
-  if (argc == 1) free (temp);
+  if (argc == 1) free (temp); // !!
   /* Before we do some serious stuff, we need to initialize mutex, we cannot
      work without it. */
   if (pthread_mutex_init(&lock, NULL) != 0)
@@ -147,7 +147,15 @@ int main (int argc, char **argv)
   free (tidv);
   /* Now, it's time to sort our strings and print results. */
   qsort (outputs, itemsTotal, sizeof (struct audioParams *), cmpStrp);
-  printf ("rate   B  f # mm:ss file\n");
+  char showHours = 0;
+  for (i = 0; i < itemsTotal; i++)
+    {
+      struct audioParams *a = *(outputs + i);
+      if (a->frames / a->rate > 3600) showHours = 1;
+    }
+  printf ("rate   B  f # ");
+  if (showHours) printf ("hh:");
+  printf ("mm:ss file\n");
   for (i = 0; i < itemsTotal; i++)
     {
       struct audioParams *a = *(outputs + i);
@@ -162,18 +170,16 @@ int main (int argc, char **argv)
             case AF_SAMPFMT_DOUBLE   : fmt = 'd'; break;
             }
           int dur_h, dur_m, dur_s;
-          decomposeTime((int)a->duration, &dur_h, &dur_m, &dur_s);
-          printf ("%-6d %-2d %c %d %02d:%02d %s\n",
-                  a->rate,
-                  a->width,
-                  fmt,
-                  a->channels,
-                  /* dur_h, */
-                  dur_m,
-                  dur_s,
-                  a->name);
+          decomposeTime(a->frames / a->rate, &dur_h, &dur_m, &dur_s);
+          printf ("%-6d %-2d %c %d ", a->rate, a->width, fmt, a->channels);
+          if (showHours) printf ("%02d:", dur_h);
+          printf ("%02d:%02d ", dur_m, dur_s);
+          printf ("%s\n", a->name);
           free (a);
         }
+    }
+  for (i = 0; i < itemsTotal; i++)
+    {
       free (*(items + i));
     }
   free (outputs);
@@ -237,7 +243,7 @@ static int cmpStrp (const void *a, const void *b)
                 (**(struct audioParams **)b).name);
 }
 
-static void decomposeTime (int arg, int *h, int *m, int *s)
+static void decomposeTime (long arg, int *h, int *m, int *s)
 {
   *h = arg / 3600; /* hours */
   arg -= *h * 3600;
