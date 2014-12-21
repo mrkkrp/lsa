@@ -29,7 +29,9 @@ struct audioParams *analyzeFile (char *path)
   result->rate = (int)afGetRate (h, AF_DEFAULT_TRACK);
   afGetSampleFormat (h, AF_DEFAULT_TRACK, &result->format, &result->width);
   result->channels = afGetChannels (h, AF_DEFAULT_TRACK);
-  result->frames = afGetFrameCount(h, AF_DEFAULT_TRACK);
+  result->frames = afGetFrameCount (h, AF_DEFAULT_TRACK);
+  if (opCompression)
+    result->compression = afGetCompression (h, AF_DEFAULT_TRACK);
   afCloseFile (h);
   return result;
 }

@@ -23,6 +23,7 @@
 #include <stdlib.h>    /* standard stuff */
 #include <stdio.h>     /* printf */
 #include <getopt.h>    /* getopt_long */
+#include <sys/stat.h>  /* stat */
 #include <dirent.h>    /* scan directories */
 #include <unistd.h>    /* getcwd, sysconf */
 #include <string.h>    /* strcpy, strcat */
@@ -45,11 +46,17 @@
   "You should have received a copy of the GNU General Public License\n" \
   "along with this program.  If not, see <http://www.gnu.org/licenses/>.\n"
 #define LSA_HELP "lsa - list properties of audio files\n\n"             \
-  "Usage: lsa [--version|--license|--help|--formats|FILES]\n\n" \
+  "Usage: lsa [OPTIONS] [DIRECTORY]\n\n"                                \
   "Available options:\n"                                                \
   "  --help                  Show this help text\n"                     \
   "  --license               Show license of the program\n"             \
-  "  --version               Show version of the program\n"
+  "  --version               Show version of the program\n"             \
+  "  -t,--total              Show totals of some parameters\n"          \
+  "  -f,--frames             Show number of frames per file\n"          \
+  "  -p,--peak               Show peak per file\n"                      \
+  "  -P,--peaks              Show peak per channel\n"                   \
+  "  -c,--compression        Show compression scheme per file\n"
+
 #define BASENAME_MAX_LEN     256
 
 /* structures */
@@ -61,12 +68,14 @@ struct audioParams /* this structure holds various parameters of files that
   int width;
   int format;
   int channels;
-  unsigned long frames;
+  AFframecount frames;
+  int compression;
   char *name;
 };
 
 /* some declarations */
 
+extern int opPeak, opPeaks, opCompression;
 struct audioParams *analyzeFile (char *);
 
 #endif /* LSA_H */
