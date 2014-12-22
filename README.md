@@ -1,27 +1,49 @@
-# LSA - List Audio Files
-
-NOTE: this software is not ready to use. This is just layout of README file.
+# LSA - List properties of audio files
 
 This is minimal, lightweight, console, Unix-style program to list various
-parameters of audio files. It can work with most audio-formats that are not
-patented. It doesn't work with MPEG and some Apple formats for these are
-patented audio formats and shouldn't be used at all.
+parameters of audio files.
+
+## Supported Formats
+
+LSA is built on top of Audio File library, so it inherits its list of
+supported file formats:
+
+* AIFF/AIFF-C (.aiff, .aifc)
+* WAVE (.wav)
+* NeXT .snd/Sun .au (.snd, .au)
+* Berkeley/IRCAM/CARL Sound File (.sf)
+* Audio Visual Research (.avr)
+* Amiga IFF/8SVX (.iff)
+* Sample Vision (.smp)
+* Creative Voice File (.voc)
+* NIST SPHERE (.wav)
+* Core Audio Format (.caf)
+* FLAC (.flac)
+
+Supported compression formats:
+
+* G.711 mu-law and A-law
+* IMA ADPCM
+* Microsoft ADPCM
+* FLAC
+* ALAC (Apple Lossless Audio Codec)
 
 ## Features
 
-* multithread: if several files are given, every file will be processed in
-  separate thread.
-* the program can list the following parameters of an audio file:
-  * name of the file;
-  * size of the file;
-  * number of samples;
-  * length in hours, minutes, and seconds;
-  * type of compression;
-  * format of samples;
-  * number of channels;
-  * bit width;
-  * sample rate;
-  * peaks (per channel).
+The program currently is capable to display the following parameters:
+
+* sample rate;
+* sample width;
+* sample format (signed or unsigned integer, single or double precision
+  floating point);
+* number of channels;
+* length in minutes, seconds, and hours (if necessary) per file;
+* total length of all files in actual directory;
+* number of frames per file;
+* total number of frames of all files in actual directory;
+* peak [0..1] per file;
+* maximum peak among all files in actual directory;
+* compression scheme.
 
 ## Installation
 
@@ -29,12 +51,8 @@ See `INSTALL.md`.
 
 ## TODO
 
-* The following info should be also displayed:
-  * replay gain;
-  * perceived loudness;
-  * true peaks (per channel);
-  * dynamic range (per channel).
-* Add configuration file, so users can change of parameters (?).
+* efficiently calculate perceived loudness (as per ITU-R BS.1770-3);
+* efficiently calculate loudness range.
 
 ## License
 
