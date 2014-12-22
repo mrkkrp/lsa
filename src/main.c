@@ -44,7 +44,6 @@ struct option options[] = /* structures for getopt_long */
     { "total"      , no_argument, &opTotal      , 1 },
     { "frames"     , no_argument, &opFrames     , 1 },
     { "peak"       , no_argument, &opPeak       , 1 },
-    { "peaks"      , no_argument, &opPeaks      , 1 },
     { "compression", no_argument, &opCompression, 1 },
     { NULL         , 0          , NULL          , 0 } };
 
@@ -79,14 +78,13 @@ int main (int argc, char **argv)
   /* First, we process command line options with 'getopt_long', see
      documentation for this function to understand what's going on here. */
   int opt;
-  while ((opt = getopt_long (argc, argv, "+tfpPc", options, NULL)) != -1)
+  while ((opt = getopt_long (argc, argv, "+tfpc", options, NULL)) != -1)
     {
       switch (opt)
         {
         case 't' : opTotal       = 1; break;
         case 'f' : opFrames      = 1; break;
         case 'p' : opPeak        = 1; break;
-        case 'P' : opPeaks       = 1; break;
         case 'c' : opCompression = 1; break;
         }
     }
@@ -187,6 +185,7 @@ int main (int argc, char **argv)
   printf ("mm:ss ");
   if (opFrames) printf ("frames     ");
   if (opCompression) printf ("compression ");
+  if (opPeak) printf ("peak     ");
   printf ("file\n");
   /* Print items and free output structures. */
   for (i = 0; i < itemsTotal; i++)
@@ -206,6 +205,8 @@ int main (int argc, char **argv)
           if (opFrames) printf ("%10ld ", p->frames);
           if (opCompression)
             printf ("%11s ", decodeCompression (p->compression));
+          if (opPeak)
+            printf ("%8f ", p->peak);
           printf ("%s\n", p->name);
           free (p);
         }

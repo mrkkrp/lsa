@@ -19,6 +19,93 @@
 
 #include "lsa.h"
 
+#define ABS(X) (X >= 0 ? X : -X)
+
+static float getPeak (void *frames, AFframecount c, int format, int width)
+/* Calculate peak. */
+{
+  AFframecount i;
+  if (format == AF_SAMPFMT_TWOSCOMP)
+    {
+      int32_t temp = 0;
+      if (width > 16)
+        {
+          for (i = 0; i < c; i++)
+            {
+              int32_t x = ABS(*((int32_t *)frames + i));
+              if (x > temp) temp = x;
+            }
+        }
+      else if (width > 8)
+        {
+          for (i = 0; i < c; i++)
+            {
+              int16_t x = ABS(*((int16_t *)frames + i));
+              if (x > temp) temp = x;
+            }
+        }
+      else if (width > 0)
+        {
+          for (i = 0; i < c; i++)
+            {
+              int8_t x = ABS(*((int8_t *)frames + i));
+              if (x > temp) temp = x;
+            }
+        }
+      return (float)temp / ((1 << (width - 1)) - 1);
+    }
+  if (format == AF_SAMPFMT_UNSIGNED)
+    {
+      uint32_t temp = 0;
+      if (width > 16)
+        {
+          for (i = 0; i < c; i++)
+            {
+              uint32_t x = *((uint32_t *)frames + i);
+              if (x > temp) temp = x;
+            }
+        }
+      else if (width > 8)
+        {
+          for (i = 0; i < c; i++)
+            {
+              uint16_t x = *((uint16_t *)frames + i);
+              if (x > temp) temp = x;
+            }
+        }
+      else if (width > 0)
+        {
+          for (i = 0; i < c; i++)
+            {
+              uint8_t x = *((uint8_t *)frames + i);
+              if (x > temp) temp = x;
+            }
+        }
+      return (float)temp / ((1 << width) - 1);
+    }
+  if (format == AF_SAMPFMT_FLOAT)
+    {
+      float temp = 0;
+      for (i = 0; i < c; i++)
+        {
+          float x = ABS(*((float *)frames + i));
+          if (x > temp) temp = x;
+        }
+      return temp;
+    }
+  if (format == AF_SAMPFMT_DOUBLE)
+    {
+      double temp = 0;
+      for (i = 0; i < c; i++)
+        {
+          double x = ABS(*((double *)frames + i));
+          if (x > temp) temp = x;
+        }
+      return (float)temp;
+    }
+  return 0;
+}
+
 struct audioParams *analyzeFile (char *path)
 /* This is the place where all the analyze happens. We take 'path', open
    file on this path with AudioFile library, allocate memory for 'struct
@@ -34,6 +121,19 @@ struct audioParams *analyzeFile (char *path)
   result->frames = afGetFrameCount (h, AF_DEFAULT_TRACK);
   if (opCompression)
     result->compression = afGetCompression (h, AF_DEFAULT_TRACK);
+  void *frames;
+  if (opPeak)
+    {
+      frames = malloc ((result->width / 8) * result->frames * result-> channels); // !!!
+      AFframecount c =
+        afReadFrames (h, AF_DEFAULT_TRACK, frames, result->frames);
+      if (c == result->frames)
+        {
+          if (opPeak)
+            result->peak = getPeak (frames, c * result->channels, result->format, result->width);
+        }
+      free (frames);
+    }
   afCloseFile (h);
   return result;
 }

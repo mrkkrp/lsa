@@ -22,6 +22,7 @@
 
 #include <stdlib.h>    /* standard stuff */
 #include <stdio.h>     /* printf */
+#include <stdint.h>    /* intN_t things */
 #include <getopt.h>    /* getopt_long */
 #include <sys/stat.h>  /* stat */
 #include <dirent.h>    /* scan directories */
@@ -54,7 +55,6 @@
   "  -t,--total              Show totals of some parameters\n"          \
   "  -f,--frames             Show number of frames per file\n"          \
   "  -p,--peak               Show peak per file\n"                      \
-  "  -P,--peaks              Show peak per channel\n"                   \
   "  -c,--compression        Show compression scheme per file\n"
 
 #define BASENAME_MAX_LEN     256 /* according to definition of 'd_name'
@@ -71,6 +71,7 @@ struct audioParams /* this structure contains various parameters of files
   int channels;
   AFframecount frames;
   int compression;
+  float peak;
   char *name;
 };
 
