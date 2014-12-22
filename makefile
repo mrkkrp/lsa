@@ -19,7 +19,7 @@
 .PHONY : clear
 
 built/lsa : src/main.o src/analyze.o
-	gcc -laudiofile -lpthread -o built/lsa built/main.o built/analyze.o
+	gcc -msse2 -laudiofile -lpthread -o built/lsa built/main.o built/analyze.o
 
 src/main.o :
 	mkdir -p built
