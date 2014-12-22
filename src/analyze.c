@@ -20,8 +20,10 @@
 #include "lsa.h"
 
 struct audioParams *analyzeFile (char *path)
-/* This is the place where all analyze happens. This is incomplete version
-   of the function. TODO: finish it. */
+/* This is the place where all the analyze happens. We take 'path', open
+   file on this path with AudioFile library, allocate memory for 'struct
+   audioParams', assign calculated values and return pointer to this
+   structure. If we return 'NULL', this item will be ignored. */
 {
   AFfilehandle h = afOpenFile ((const char *)path, "r", NULL);
   if (h == AF_NULL_FILEHANDLE) return NULL;

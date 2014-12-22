@@ -57,12 +57,13 @@
   "  -P,--peaks              Show peak per channel\n"                   \
   "  -c,--compression        Show compression scheme per file\n"
 
-#define BASENAME_MAX_LEN     256
+#define BASENAME_MAX_LEN     256 /* according to definition of 'd_name'
+                                    field in 'struct dirent' */
 
 /* structures */
 
-struct audioParams /* this structure holds various parameters of files that
-                      have been analyzed */
+struct audioParams /* this structure contains various parameters of files
+                      that have been analyzed */
 {
   int rate;
   int width;
