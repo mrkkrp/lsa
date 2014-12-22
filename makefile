@@ -18,16 +18,16 @@
 
 .PHONY : clear
 
-built/lsa : src/main.o src/analyze.o
-	gcc -msse2 -laudiofile -lpthread -o built/lsa built/main.o built/analyze.o
+build/lsa : src/main.o src/analyze.o
+	gcc -msse2 -laudiofile -lpthread -o build/lsa build/main.o build/analyze.o
 
 src/main.o :
-	mkdir -p built
-	gcc -c -o built/main.o src/main.c
+	mkdir -p build
+	gcc -c -o build/main.o src/main.c
 
 src/analyze.o :
-	mkdir -p built
-	gcc -c -o built/analyze.o src/analyze.c
+	mkdir -p build
+	gcc -c -o build/analyze.o src/analyze.c
 
 clear :
-	rm -vr built
+	rm -vr build

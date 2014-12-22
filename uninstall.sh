@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ba
 #
 # LSA Uninstallation script
 #
@@ -17,40 +17,37 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# !!! Please fix me!
-
 ### constants
 
-I_ITEMS="/usr/{bin/mida{,rm},share/man/man1/mida{,rm}.1.gz,\
-share/{licenses,doc}/mida}"
+I_ITEMS="/usr/{bin/lsa,share/man/man1/lsa.1.gz,share/licenses/lsa}"
 
 ### functions
 
 bad_exit() # prints error message and exits the program
 {
-    echo "FAILED." 1>&2
+    echo "failed" 1>&2
     exit 1
 }
 
 ### main
 
-echo '-> MIDA uninstallation has been started;'
+echo 'LSA uninstallation has been started;'
 
 # 1. check if actual user is root (must be root to uninstall the software)
 
-echo -n '=> actual user must be root......'
+echo -n 'actual user must be root...'
 test $(id -u) -gt 0 && bad_exit
-echo 'OK,'
+echo 'ok'
 
 # 2. removing files
 
-echo -n '=> removing MIDA.................'
-eval rm -rv $I_ITEMS > /dev/null 2>&1
+echo -n 'deleting files...'
+eval rm -r $I_ITEMS > /dev/null 2>&1
 if test $? -eq 0
-then echo 'OK,'
+then echo 'ok'
 else bad_exit
 fi
 
 # 3. done
 
-echo '=> done.'
+echo 'done.'
