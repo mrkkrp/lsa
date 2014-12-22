@@ -30,6 +30,7 @@
 #include <string.h>    /* strcpy, strcat */
 #include <audiofile.h> /* to work with audio files */
 #include <pthread.h>   /* create and manage posix threads */
+#include <xmmintrin.h> /* for SSE Intrinsics */
 
 /* some definitions */
 

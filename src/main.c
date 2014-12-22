@@ -172,20 +172,28 @@ int main (int argc, char **argv)
   free (wdir);
   /* Now, it's time to sort our strings and print results. */
   qsort (outputs, itemsTotal, sizeof (struct audioParams *), cmpStrp);
-  /* Here we determine if we should display hours. */
+  /* Here we determine if we should display hours + some auxiliary
+     calculations for '--total' option. */
   char showHours = 0;
+  double totalSecs = 0;
+  AFframecount totalFrames = 0;
+  float totalPeak = 0;
   for (i = 0; i < itemsTotal; i++)
     {
       struct audioParams *a = *(outputs + i);
       if (a->frames / a->rate > 3600) showHours = 1;
+      totalSecs += (double)a->frames / a->rate;
+      totalFrames += a->frames;
+      if (a->peak > totalPeak) totalPeak = a->peak;
     }
+  if (opTotal && totalSecs > 3600) showHours = 1;
   /* Print header of our table. */
   printf ("rate   B  f # ");
   if (showHours) printf ("hh:");
   printf ("mm:ss ");
   if (opFrames) printf ("frames     ");
-  if (opCompression) printf ("compression ");
   if (opPeak) printf ("peak     ");
+  if (opCompression) printf ("compression ");
   printf ("file\n");
   /* Print items and free output structures. */
   for (i = 0; i < itemsTotal; i++)
@@ -203,13 +211,26 @@ int main (int argc, char **argv)
           if (showHours) printf ("%02d:", dur_h);
           printf ("%02d:%02d ", dur_m, dur_s);
           if (opFrames) printf ("%10ld ", p->frames);
-          if (opCompression)
-            printf ("%11s ", decodeCompression (p->compression));
           if (opPeak)
             printf ("%8f ", p->peak);
+          if (opCompression)
+            printf ("%11s ", decodeCompression (p->compression));
           printf ("%s\n", p->name);
           free (p);
         }
+    }
+  /* Print totals (optionally). */
+  if (opTotal)
+    {
+      int dur_h, dur_m, dur_s;
+      decomposeTime ((int)totalSecs, &dur_h, &dur_m, &dur_s);
+      printf ("              ");
+      if (showHours) printf ("%02d:", dur_h);
+      printf ("%02d:%02d ", dur_m, dur_s);
+      if (opFrames) printf ("%10ld ", totalFrames);
+      if (opPeak) printf ("%8f ", totalPeak);
+      if (opCompression) printf ("            ");
+      printf ("%ld files\n", itemsTotal);
     }
   free (outputs);
   /* Free items, freedom must be given to everyone. */

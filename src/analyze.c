@@ -121,16 +121,21 @@ struct audioParams *analyzeFile (char *path)
   result->frames = afGetFrameCount (h, AF_DEFAULT_TRACK);
   if (opCompression)
     result->compression = afGetCompression (h, AF_DEFAULT_TRACK);
-  void *frames;
+  void *frames = NULL;
   if (opPeak)
     {
-      frames = malloc ((result->width / 8) * result->frames * result-> channels); // !!!
+      posix_memalign (&frames,
+                      16,
+                      (result->width / 8) * result->frames * result-> channels);
       AFframecount c =
         afReadFrames (h, AF_DEFAULT_TRACK, frames, result->frames);
       if (c == result->frames)
         {
           if (opPeak)
-            result->peak = getPeak (frames, c * result->channels, result->format, result->width);
+            result->peak = getPeak (frames,
+                                    c * result->channels,
+                                    result->format,
+                                    result->width);
         }
       free (frames);
     }
