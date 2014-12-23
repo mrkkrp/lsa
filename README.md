@@ -3,6 +3,11 @@
 This is minimal, lightweight, console, Unix-style program to list various
 parameters of audio files.
 
+## Requirements
+
+LSA requires CPU with SSE and SSE2 (this means that only if you have pretty
+old CPU it won't work). Also, your OS must support these intrinsics.
+
 ## Supported Formats
 
 LSA is built on top of Audio File library, so it inherits its list of
