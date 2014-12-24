@@ -61,7 +61,8 @@ struct audioParams *analyzeFile (char *path)
       count *= result->frames * result->channels;
       if (posix_memalign (&frames, 16, count))
         {
-          fprintf (stderr, "cannot dynamically allocate aligned memory;\n");
+          fprintf (stderr,
+                   "lsa: cannot dynamically allocate aligned memory\n");
           return result;
         }
       AFframecount c =

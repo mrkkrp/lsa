@@ -75,6 +75,20 @@ static char *decodeCompression (int);
 
 int main (int argc, char **argv)
 {
+  /* Before we do some serious stuff, we need to initialize mutex, we cannot
+     work without it. */
+  if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+      fprintf (stderr, "lsa: cannot initialize pthread mutex, exit\n");
+      return EXIT_FAILURE;
+    }
+  /* Now let's check if SSE and SSE2 are supported by CPU and OS. */
+  if (!(__builtin_cpu_supports ("sse") &&
+        __builtin_cpu_supports ("sse2")))
+    {
+      fprintf (stderr, "lsa: the CPU doesn't support SSE and SSE2\n");
+      return EXIT_FAILURE;
+    }
   /* First, we process command line options with 'getopt_long', see
      documentation for this function to understand what's going on here. */
   int opt;
@@ -131,14 +145,8 @@ int main (int argc, char **argv)
   struct stat sb;
   if (!(stat (wdir, &sb) == 0 && S_ISDIR (sb.st_mode)))
     {
-      fprintf (stderr, "'%s' does not exist or it's not a directory\n", wdir);
-      free (wdir);
-      return EXIT_FAILURE;
-    }
-  /* Before we do some serious stuff, we need to initialize mutex, we cannot
-     work without it. */
-  if (pthread_mutex_init(&lock, NULL) != 0)
-    {
+      fprintf (stderr,
+               "lsa: '%s' does not exist or it's not a directory\n", wdir);
       free (wdir);
       return EXIT_FAILURE;
     }
@@ -230,7 +238,7 @@ int main (int argc, char **argv)
       if (opFrames) printf ("%10ld ", totalFrames);
       if (opPeak) printf ("%8f ", totalPeak);
       if (opCompression) printf ("            ");
-      printf ("%ld files\n", itemsTotal);
+      printf ("%ld file%s\n", itemsTotal, itemsTotal > 1 ? "s" : "");
     }
   free (outputs);
   /* Free items, freedom must be given to everyone. */
