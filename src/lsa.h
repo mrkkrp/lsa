@@ -64,8 +64,8 @@
 
 /* structures */
 
-struct audioParams /* this structure contains various parameters of files
-                      that have been analyzed */
+struct audio_params /* this structure contains various parameters of files
+                       that have been analyzed */
 {
   int rate;
   int width;
@@ -79,7 +79,7 @@ struct audioParams /* this structure contains various parameters of files
 
 /* some declarations */
 
-extern int opPeak, opPeaks, opCompression;
-struct audioParams *analyzeFile (char *);
+extern int op_peak, op_peaks, op_comp;
+struct audio_params *analyze_file (char *);
 
 #endif /* LSA_H */

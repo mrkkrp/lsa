@@ -21,33 +21,33 @@
 
 /* global variables */
 
-long sepPos,  /* this value is set from 'main', it's index of the first char
-                 of base name part of full name of file */
-  itemsTotal, /* total number of files found in target directory */
-  prcIndex; /* index of file to process */
+long sep_pos,  /* this value is set from 'main', it's index of the first char
+                  of base name part of full name of file */
+  items_total, /* total number of files found in target directory */
+  prc_index; /* index of file to process */
 struct dirent **items; /* these structures hold information about files in
                           target directory that are suitable for
                           processing */
 pthread_mutex_t lock;  /* mutex lock */
-struct audioParams **outputs; /* vector of pointers to structures that
-                                 contain descriptions for individual
-                                 files */
-int opHelp, opLicense, opVersion, opTotal, opFrames, opPeak, opPeaks,
-  opCompression; /* command line options (flags) */
+struct audio_params **outputs; /* vector of pointers to structures that
+                                  contain descriptions for individual
+                                  files */
+/* command line options (flags) */
+int op_help, op_license, op_version, op_total, op_frames, op_peak, op_comp;
 
 /* structures & constants */
 
 struct option options[] = /* structures for getopt_long */
-  { { "help"       , no_argument, &opHelp       , 1 },
-    { "license"    , no_argument, &opLicense    , 1 },
-    { "version"    , no_argument, &opVersion    , 1 },
-    { "total"      , no_argument, &opTotal      , 1 },
-    { "frames"     , no_argument, &opFrames     , 1 },
-    { "peak"       , no_argument, &opPeak       , 1 },
-    { "compression", no_argument, &opCompression, 1 },
-    { NULL         , 0          , NULL          , 0 } };
+  { { "help"       , no_argument, &op_help   , 1 },
+    { "license"    , no_argument, &op_license, 1 },
+    { "version"    , no_argument, &op_version, 1 },
+    { "total"      , no_argument, &op_total  , 1 },
+    { "frames"     , no_argument, &op_frames , 1 },
+    { "peak"       , no_argument, &op_peak   , 1 },
+    { "compression", no_argument, &op_comp   , 1 },
+    { NULL         , 0          , NULL       , 0 } };
 
-const char *sExts[] = /* extensions of supported file formats */
+const char *s_exts[] = /* extensions of supported file formats */
   { "aiff",  /* AIFF */
     "aiffc", /* AIFF-C */
     "wav",   /* WAVE */
@@ -63,13 +63,13 @@ const char *sExts[] = /* extensions of supported file formats */
 
 /* declarations */
 
-static void *runThread (void *);
-static const char *getExt(const char *);
-static int extFilter (const struct dirent *);
-static int cmpStrp (const void *, const void *);
-static char decodeFormat (int);
-static void decomposeTime (long, int *, int *, int *);
-static char *decodeCompression (int);
+static void *run_thread (void *);
+static const char *get_ext(const char *);
+static int ext_filter (const struct dirent *);
+static int cmpstrp (const void *, const void *);
+static char decode_format (int);
+static void decompose_time (long, int *, int *, int *);
+static char *decode_comp (int);
 
 /* main */
 
@@ -96,26 +96,26 @@ int main (int argc, char **argv)
     {
       switch (opt)
         {
-        case 't' : opTotal       = 1; break;
-        case 'f' : opFrames      = 1; break;
-        case 'p' : opPeak        = 1; break;
-        case 'c' : opCompression = 1; break;
+        case 't' : op_total  = 1; break;
+        case 'f' : op_frames = 1; break;
+        case 'p' : op_peak   = 1; break;
+        case 'c' : op_comp   = 1; break;
         }
     }
   /* Some options are informational by their nature and they cancel other
      options, so we just check if user wants to see some info and print it
      if it's the case. */
-  if (opHelp)
+  if (op_help)
     {
       printf (LSA_HELP);
       return EXIT_SUCCESS;
     }
-  if (opLicense)
+  if (op_license)
     {
       printf (LSA_LICENSE);
       return EXIT_SUCCESS;
     }
-  if (opVersion)
+  if (op_version)
     {
       printf ("LSA %s, built %s %s\n", LSA_VERSION, __DATE__, __TIME__);
       return EXIT_SUCCESS;
@@ -136,10 +136,10 @@ int main (int argc, char **argv)
   if (*(temp + temp_len - 1) != '/')
     {
       *(wdir + temp_len) = '/';
-      sepPos = temp_len + 1;
-      *(wdir + sepPos) = '\0';
+      sep_pos = temp_len + 1;
+      *(wdir + sep_pos) = '\0';
     }
-  else sepPos = temp_len;
+  else sep_pos = temp_len;
   if (optind >= argc) free (temp);
   /* First of all, we should check if the given directory exist. */
   struct stat sb;
@@ -152,9 +152,9 @@ int main (int argc, char **argv)
     }
   /* Scan working directory, save number of items we can process and items
      themselves in global variables. */
-  itemsTotal = scandir (wdir, &items, extFilter, NULL);
+  items_total = scandir (wdir, &items, ext_filter, NULL);
   /* Allocate memory for vector of result structures. */
-  outputs = malloc (sizeof (struct audioParams *) * itemsTotal);
+  outputs = malloc (sizeof (struct audioParams *) * items_total);
   /* Get number of cores, start a thread per core, every thread gets string
      with copy of working directory, the string should have enough space to
      'strcat' base names to it later. We also need to allocate enough space
@@ -166,7 +166,7 @@ int main (int argc, char **argv)
     {
       char *temp = malloc (sizeof (char) * wdir_len);
       strcpy (temp, wdir);
-      pthread_create (tidv + i, NULL, runThread, temp);
+      pthread_create (tidv + i, NULL, run_thread, temp);
     }
   /* Wait for all threads to finish using vector of ids. Now free the
      vector, free directory items, and entire vector of these items. Free
@@ -179,70 +179,70 @@ int main (int argc, char **argv)
   free (tidv);
   free (wdir);
   /* Now, it's time to sort our strings and print results. */
-  qsort (outputs, itemsTotal, sizeof (struct audioParams *), cmpStrp);
+  qsort (outputs, items_total, sizeof (struct audioParams *), cmpstrp);
   /* Here we determine if we should display hours + some auxiliary
      calculations for '--total' option. */
-  char showHours = 0;
-  double totalSecs = 0;
-  AFframecount totalFrames = 0;
-  float totalPeak = 0;
-  for (i = 0; i < itemsTotal; i++)
+  char show_hours = 0;
+  double total_secs = 0;
+  AFframecount total_frames = 0;
+  float total_peak = 0;
+  for (i = 0; i < items_total; i++)
     {
-      struct audioParams *a = *(outputs + i);
-      if (a->frames / a->rate > 3600) showHours = 1;
-      totalSecs += (double)a->frames / a->rate;
-      totalFrames += a->frames;
-      if (a->peak > totalPeak) totalPeak = a->peak;
+      struct audio_params *a = *(outputs + i);
+      if (a->frames / a->rate > 3600) show_hours = 1;
+      total_secs += (double)a->frames / a->rate;
+      total_frames += a->frames;
+      if (a->peak > total_peak) total_peak = a->peak;
     }
-  if (opTotal && totalSecs > 3600) showHours = 1;
+  if (op_total && total_secs > 3600) show_hours = 1;
   /* Print header of our table. */
   printf ("rate   B  f # ");
-  if (showHours) printf ("hh:");
+  if (show_hours) printf ("hh:");
   printf ("mm:ss ");
-  if (opFrames) printf ("frames     ");
-  if (opPeak) printf ("peak     ");
-  if (opCompression) printf ("compression ");
+  if (op_frames) printf ("frames     ");
+  if (op_peak) printf ("peak     ");
+  if (op_comp) printf ("compression ");
   printf ("file\n");
   /* Print items and free output structures. */
-  for (i = 0; i < itemsTotal; i++)
+  for (i = 0; i < items_total; i++)
     {
-      struct audioParams *p = *(outputs + i);
+      struct audio_params *p = *(outputs + i);
       if (p)
         {
           int dur_h, dur_m, dur_s;
-          decomposeTime(p->frames / p->rate, &dur_h, &dur_m, &dur_s);
+          decompose_time (p->frames / p->rate, &dur_h, &dur_m, &dur_s);
           printf ("%6d %-2d %c %d ",
                   p->rate,
                   p->width,
-                  decodeFormat (p->format),
+                  decode_format (p->format),
                   p->channels);
-          if (showHours) printf ("%02d:", dur_h);
+          if (show_hours) printf ("%02d:", dur_h);
           printf ("%02d:%02d ", dur_m, dur_s);
-          if (opFrames) printf ("%10ld ", p->frames);
-          if (opPeak)
+          if (op_frames) printf ("%10ld ", p->frames);
+          if (op_peak)
             printf ("%8f ", p->peak);
-          if (opCompression)
-            printf ("%11s ", decodeCompression (p->compression));
+          if (op_comp)
+            printf ("%11s ", decode_comp (p->compression));
           printf ("%s\n", p->name);
           free (p);
         }
     }
   /* Print totals (optionally). */
-  if (opTotal)
+  if (op_total)
     {
       int dur_h, dur_m, dur_s;
-      decomposeTime ((int)totalSecs, &dur_h, &dur_m, &dur_s);
+      decompose_time ((int)total_secs, &dur_h, &dur_m, &dur_s);
       printf ("              ");
-      if (showHours) printf ("%02d:", dur_h);
+      if (show_hours) printf ("%02d:", dur_h);
       printf ("%02d:%02d ", dur_m, dur_s);
-      if (opFrames) printf ("%10ld ", totalFrames);
-      if (opPeak) printf ("%8f ", totalPeak);
-      if (opCompression) printf ("            ");
-      printf ("%ld file%s\n", itemsTotal, itemsTotal > 1 ? "s" : "");
+      if (op_frames) printf ("%10ld ", total_frames);
+      if (op_peak) printf ("%8f ", total_peak);
+      if (op_comp) printf ("            ");
+      printf ("%ld file%s\n", items_total, items_total > 1 ? "s" : "");
     }
   free (outputs);
   /* Free items, freedom must be given to everyone. */
-  for (i = 0; i < itemsTotal; i++)
+  for (i = 0; i < items_total; i++)
     {
       free (*(items + i));
     }
@@ -252,7 +252,7 @@ int main (int argc, char **argv)
 
 /* functions */
 
-static void *runThread (void *dir)
+static void *run_thread (void *dir)
 /* This function describes behavior of an individual thread. It takes new
    item from vector of items (if there's any), updates name of file 'dir',
    calls function 'analyzeFile' with this name and takes result of this
@@ -260,14 +260,14 @@ static void *runThread (void *dir)
    with 'malloc'. Finally this routine copies pointer to result structure to
    'outputs'. */
 {
-  while (prcIndex < itemsTotal)
+  while (prc_index < items_total)
     {
       pthread_mutex_lock (&lock);
-      long i = prcIndex++;
+      long i = prc_index++;
       pthread_mutex_unlock (&lock);
-      *((char *)dir + sepPos) = '\0';
+      *((char *)dir + sep_pos) = '\0';
       strcat ((char *)dir, (**(items + i)).d_name);
-      *(outputs + i) = analyzeFile ((char *)dir);
+      *(outputs + i) = analyze_file ((char *)dir);
       if (*(outputs + i))
         (**(outputs + i)).name = (**(items + i)).d_name;
     }
@@ -275,7 +275,7 @@ static void *runThread (void *dir)
   return NULL;
 }
 
-static const char *getExt(const char *arg)
+static const char *get_ext (const char *arg)
 /* This function extracts extension from a file name. */
 {
     const char *dot = strrchr(arg, '.');
@@ -283,29 +283,29 @@ static const char *getExt(const char *arg)
     return dot + 1;
 }
 
-static int extFilter (const struct dirent *arg)
+static int ext_filter (const struct dirent *arg)
 /* This function filters every item of type 'struct dirent'. It only accepts
    regular files and links and those items must have one of supported
    extensions. */
 {
   if (arg->d_type != DT_REG && arg->d_type != DT_LNK) return 0;
-  const char *ext = getExt (arg->d_name);
+  const char *ext = get_ext (arg->d_name);
   unsigned int i;
-  for (i = 0; i < (sizeof (sExts) / sizeof (sExts[0])); i++)
+  for (i = 0; i < (sizeof (s_exts) / sizeof (s_exts[0])); i++)
     {
-      if (!strcmp (ext, *(sExts + i))) return 1;
+      if (!strcmp (ext, *(s_exts + i))) return 1;
     }
   return 0;
 }
 
-static int cmpStrp (const void *a, const void *b)
+static int cmpstrp (const void *a, const void *b)
 /* This is wrapper around 'strcmp' to sort output structures with 'qsort'. */
 {
-  return strcmp((**(struct audioParams **)a).name,
-                (**(struct audioParams **)b).name);
+  return strcmp((**(struct audio_params **)a).name,
+                (**(struct audio_params **)b).name);
 }
 
-static char decodeFormat (int arg)
+static char decode_format (int arg)
 /* The function returns one letter corresponding to code of sample format. */
 {
   switch (arg)
@@ -318,7 +318,7 @@ static char decodeFormat (int arg)
   return '?';
 }
 
-static void decomposeTime (long arg, int *h, int *m, int *s)
+static void decompose_time (long arg, int *h, int *m, int *s)
 /* Extract number of hours, minutes, and seconds from given total number of
    seconds. */
 {
@@ -329,7 +329,7 @@ static void decomposeTime (long arg, int *h, int *m, int *s)
   *s = arg; /* seconds */
 }
 
-static char *decodeCompression (int arg)
+static char *decode_comp (int arg)
 /* Return name of compression scheme by its code. */
 {
   switch (arg)

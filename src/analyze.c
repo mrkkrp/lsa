@@ -21,7 +21,7 @@
 
 /* declarations */
 
-static float getPeak     (void *, AFframecount, int, int);
+static float get_peak    (void *, AFframecount, int, int);
 static float peak_int32  (void *, AFframecount);
 static float peak_int16  (void *, AFframecount);
 static float peak_int8   (void *, AFframecount);
@@ -33,7 +33,7 @@ static float peak_double (void *, AFframecount);
 
 /* definitions */
 
-struct audioParams *analyzeFile (char *path)
+struct audio_params *analyze_file (char *path)
 /* This is the place where all the analyze happens. We take 'path', open
    file on this path with AudioFile library, allocate memory for 'struct
    audioParams', assign calculated values and return pointer to this
@@ -41,15 +41,15 @@ struct audioParams *analyzeFile (char *path)
 {
   AFfilehandle h = afOpenFile ((const char *)path, "r", NULL);
   if (h == AF_NULL_FILEHANDLE) return NULL;
-  struct audioParams *result = malloc (sizeof (*result));
+  struct audio_params *result = malloc (sizeof (*result));
   result->rate = (int)afGetRate (h, AF_DEFAULT_TRACK);
   afGetSampleFormat (h, AF_DEFAULT_TRACK, &result->format, &result->width);
   result->channels = afGetChannels (h, AF_DEFAULT_TRACK);
   result->frames = afGetFrameCount (h, AF_DEFAULT_TRACK);
-  if (opCompression)
+  if (op_comp)
     result->compression = afGetCompression (h, AF_DEFAULT_TRACK);
-  if (opPeak) /* check if any options that requires calculations on frames
-                 are supplied */
+  if (op_peak) /* check if any options that requires calculations on frames
+                  are supplied */
     {
       void *frames = NULL;
       /* Calculate size of the buffer and allocate aligned memory. */
@@ -69,11 +69,11 @@ struct audioParams *analyzeFile (char *path)
         afReadFrames (h, AF_DEFAULT_TRACK, frames, result->frames);
       if (c == result->frames)
         {
-          if (opPeak)
-            result->peak = getPeak (frames,
-                                    c * result->channels,
-                                    result->format,
-                                    result->width);
+          if (op_peak)
+            result->peak = get_peak (frames,
+                                     c * result->channels,
+                                     result->format,
+                                     result->width);
         }
       free (frames);
     }
@@ -81,7 +81,7 @@ struct audioParams *analyzeFile (char *path)
   return result;
 }
 
-static float getPeak (void *frames, AFframecount c, int format, int width)
+static float get_peak (void *frames, AFframecount c, int format, int width)
 {
   if (format == AF_SAMPFMT_TWOSCOMP)
     {
