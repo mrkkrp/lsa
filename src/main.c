@@ -238,7 +238,7 @@ int main (int argc, char **argv)
       if (op_frames) printf ("%10ld ", total_frames);
       if (op_peak) printf ("%8f ", total_peak);
       if (op_comp) printf ("            ");
-      printf ("%ld file%s\n", items_total, items_total > 1 ? "s" : "");
+      printf ("%ld file%s\n", items_total, items_total == 1 ? "" : "s");
     }
   free (outputs);
   /* Free items, freedom must be given to everyone. */

@@ -35,7 +35,7 @@
 
 /* some definitions */
 
-#define LSA_VERSION "0.1.0"
+#define LSA_VERSION "0.1.1"
 #define LSA_LICENSE "LSA - List properties of audio files.\n\n"         \
   "Copyright (c) 2014 Mark Karpov\n\n"                                  \
   "This program is free software: you can redistribute it and/or modify\n" \
