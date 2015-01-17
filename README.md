@@ -1,7 +1,9 @@
 # LSA - List properties of audio files
 
 This is minimal, lightweight, console, Unix-style program to list various
-parameters of audio files.
+parameters of audio files. It works like `ls` command displaying parameters
+of files in current (or specified) directory. This program is written to
+work with collection of files as a whole.
 
 ## Requirements
 
@@ -63,4 +65,4 @@ See `INSTALL.md`.
 
 Copyright (c) 2014 Mark Karpov
 
-Distributed under GNU GRL.
+Distributed under GNU GRL, version 3.
