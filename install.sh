@@ -2,7 +2,7 @@
 #
 # LSA Installation Script
 #
-# Copyright (c) 2014 Mark Karpov
+# Copyright (c) 2014, 2015 Mark Karpov
 #
 # LSA Installation Script is free software: you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as published
@@ -48,30 +48,21 @@ echo 'ok'
 
 # 3. creating directories
 
-echo -n 'creating directories...'
-eval mkdir -p $I_DIRS > /dev/null 2>&1
+echo 'creating directories...'
+eval install -vdm755 $I_DIRS
 if test $? -eq 0
-then echo 'ok'
+then echo 'creating directories: ok'
 else bad_exit
 fi
 
 # 4. copying new files
 
-echo -n 'copying new files...'
-cp -u build/lsa    /usr/bin/
-cp -u LICENSE.md   /usr/share/licenses/lsa/
-cp -u doc/lsa.1.gz /usr/share/man/man1/
-echo 'ok'
+echo 'copying new files...'
+install -vDm755 build/lsa    /usr/bin/
+install -vDm644 LICENSE.md   /usr/share/licenses/lsa/
+install -vDm644 doc/lsa.1.gz /usr/share/man/man1/
+echo 'copying new files: ok'
 
-# 5. settting permissions
-
-echo -n 'setting permissions...'
-eval chmod -R 755 $I_ITEMS
-if test $? -eq 0
-then echo 'ok'
-else bad_exit
-fi
-
-# 6. done
+# 5. done
 
 echo 'done.'
