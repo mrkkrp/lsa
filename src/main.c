@@ -33,7 +33,8 @@ struct audio_params **outputs; /* vector of pointers to structures that
                                   contain descriptions for individual
                                   files */
 /* command line options (flags) */
-int op_help, op_license, op_version, op_total, op_frames, op_peak, op_comp;
+int op_help, op_license, op_version, op_total, op_frames, op_kbps, op_peak,
+  op_comp;
 
 /* structures & constants */
 
@@ -43,6 +44,7 @@ struct option options[] = /* structures for getopt_long */
     { "version"    , no_argument, &op_version, 1 },
     { "total"      , no_argument, &op_total  , 1 },
     { "frames"     , no_argument, &op_frames , 1 },
+    { "bitrate"    , no_argument, &op_kbps   , 1 },
     { "peak"       , no_argument, &op_peak   , 1 },
     { "compression", no_argument, &op_comp   , 1 },
     { NULL         , 0          , NULL       , 0 } };
@@ -92,12 +94,13 @@ int main (int argc, char **argv)
   /* First, we process command line options with 'getopt_long', see
      documentation for this function to understand what's going on here. */
   int opt;
-  while ((opt = getopt_long (argc, argv, "+tfpc", options, NULL)) != -1)
+  while ((opt = getopt_long (argc, argv, "+tfbpc", options, NULL)) != -1)
     {
       switch (opt)
         {
         case 't' : op_total  = 1; break;
         case 'f' : op_frames = 1; break;
+        case 'b' : op_kbps   = 1; break;
         case 'p' : op_peak   = 1; break;
         case 'c' : op_comp   = 1; break;
         }
@@ -185,21 +188,25 @@ int main (int argc, char **argv)
   char show_hours = 0;
   double total_secs = 0;
   AFframecount total_frames = 0;
+  int total_kbps = 0;
   float total_peak = 0;
   for (i = 0; i < items_total; i++)
     {
       struct audio_params *a = *(outputs + i);
-      if (a->frames / a->rate > 3600) show_hours = 1;
-      total_secs += (double)a->frames / a->rate;
+      if (a->duration > 3600) show_hours = 1;
+      total_secs += a->duration;
       total_frames += a->frames;
+      total_kbps += a->kbps;
       if (a->peak > total_peak) total_peak = a->peak;
     }
   if (op_total && total_secs > 3600) show_hours = 1;
+  if (op_total && items_total) total_kbps /= items_total;
   /* Print header of our table. */
   printf ("rate   B  f # ");
   if (show_hours) printf ("hh:");
   printf ("mm:ss ");
   if (op_frames) printf ("frames     ");
+  if (op_kbps) printf ("kbps ");
   if (op_peak) printf ("peak     ");
   if (op_comp) printf ("compression ");
   printf ("file\n");
@@ -210,7 +217,7 @@ int main (int argc, char **argv)
       if (p)
         {
           int dur_h, dur_m, dur_s;
-          decompose_time (p->frames / p->rate, &dur_h, &dur_m, &dur_s);
+          decompose_time (p->duration, &dur_h, &dur_m, &dur_s);
           printf ("%6d %-2d %c %d ",
                   p->rate,
                   p->width,
@@ -219,10 +226,9 @@ int main (int argc, char **argv)
           if (show_hours) printf ("%02d:", dur_h);
           printf ("%02d:%02d ", dur_m, dur_s);
           if (op_frames) printf ("%10ld ", p->frames);
-          if (op_peak)
-            printf ("%8f ", p->peak);
-          if (op_comp)
-            printf ("%11s ", decode_comp (p->compression));
+          if (op_kbps) printf ("%4d ", p->kbps);
+          if (op_peak) printf ("%8f ", p->peak);
+          if (op_comp) printf ("%11s ", decode_comp (p->compression));
           printf ("%s\n", p->name);
           free (p);
         }
@@ -236,6 +242,7 @@ int main (int argc, char **argv)
       if (show_hours) printf ("%02d:", dur_h);
       printf ("%02d:%02d ", dur_m, dur_s);
       if (op_frames) printf ("%10ld ", total_frames);
+      if (op_kbps) printf ("%4d ", total_kbps);
       if (op_peak) printf ("%8f ", total_peak);
       if (op_comp) printf ("            ");
       printf ("%ld file%s\n", items_total, items_total == 1 ? "" : "s");

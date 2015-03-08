@@ -28,7 +28,7 @@
 #include <dirent.h>    /* scan directories */
 #include <unistd.h>    /* getcwd, sysconf */
 #include <string.h>    /* strcpy, strcat */
-#include <audiofile.h> /* to work with audio files */
+#include <audiofile.h> /* http://www.68k.org/~michael/audiofile/ */
 #include <pthread.h>   /* create and manage posix threads */
 #include <xmmintrin.h> /* for SSE intrinsics */
 #include <emmintrin.h> /* for SSE2 intrinsics */
@@ -56,6 +56,7 @@
   "  --version               Show version of the program\n"             \
   "  -t,--total              Show totals of some parameters\n"          \
   "  -f,--frames             Show number of frames per file\n"          \
+  "  -b,--bitrate            Show bitrate per file\n"                   \
   "  -p,--peak               Show peak per file\n"                      \
   "  -c,--compression        Show compression scheme per file\n"
 
@@ -67,14 +68,16 @@
 struct audio_params /* this structure contains various parameters of files
                        that have been analyzed */
 {
+  AFframecount frames;
+  char *name;
+  double duration;
+  float peak;
+  int channels;
+  int compression;
+  int format;
+  int kbps;
   int rate;
   int width;
-  int format;
-  int channels;
-  AFframecount frames;
-  int compression;
-  float peak;
-  char *name;
 };
 
 /* some declarations */

@@ -46,6 +46,9 @@ struct audio_params *analyze_file (char *path)
   afGetSampleFormat (h, AF_DEFAULT_TRACK, &result->format, &result->width);
   result->channels = afGetChannels (h, AF_DEFAULT_TRACK);
   result->frames = afGetFrameCount (h, AF_DEFAULT_TRACK);
+  result->duration = (double)result->frames / result->rate;
+  result->kbps = /* 8 / 1000 = 125, * 8 to get bits, / 1000 to get kilos */
+    afGetTrackBytes (h, AF_DEFAULT_TRACK) / (result->duration * 125);
   if (op_comp)
     result->compression = afGetCompression (h, AF_DEFAULT_TRACK);
   if (op_peak) /* check if any options that requires calculations on frames
