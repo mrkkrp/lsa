@@ -1,7 +1,7 @@
 /*
  * This file is part of LSA.
  *
- * Copyright (c) 2014 Mark Karpov
+ * Copyright (c) 2014, 2015 Mark Karpov
  *
  * LSA is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
@@ -37,7 +37,7 @@
 
 #define LSA_VERSION "0.1.1"
 #define LSA_LICENSE "LSA - List properties of audio files.\n\n"         \
-  "Copyright (c) 2014 Mark Karpov\n\n"                                  \
+  "Copyright (c) 2014, 2015 Mark Karpov\n\n"                                  \
   "This program is free software: you can redistribute it and/or modify\n" \
   "it under the terms of the GNU General Public License as published by\n" \
   "the Free Software Foundation, either version 3 of the License, or\n" \

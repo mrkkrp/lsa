@@ -56,13 +56,8 @@ The program currently is capable to display the following parameters:
 
 See `INSTALL.md`.
 
-## TODO
-
-* efficiently calculate perceived loudness (as per ITU-R BS.1770-3);
-* efficiently calculate loudness range.
-
 ## License
 
-Copyright (c) 2014 Mark Karpov
+Copyright (c) 2014, 2015 Mark Karpov
 
 Distributed under GNU GRL, version 3.
