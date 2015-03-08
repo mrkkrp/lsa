@@ -44,10 +44,12 @@ The program currently is capable to display the following parameters:
 * sample format (signed or unsigned integer, single or double precision
   floating point);
 * number of channels;
-* length in minutes, seconds, and hours (if necessary) per file;
-* total length of all files in actual directory;
+* duration in minutes, seconds, and hours (if necessary) per file;
+* total duration of all files in actual directory;
 * number of frames per file;
 * total number of frames of all files in actual directory;
+* bit-rate per file in kbps;
+* average bit-rate for all files;
 * peak [0..1] per file;
 * maximum peak among all files in actual directory;
 * compression scheme.
