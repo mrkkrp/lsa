@@ -1,21 +1,21 @@
 # LSA - List properties of audio files
 
 ```
-[mark@arch 1978-Shiny-Beast-(Bat-Chain-Puller)]$ lsa -tfbp
-rate   B  f # mm:ss frames     kbps peak     file
- 44100 16 s 2 03:51   10187100  932 0.896606 01. The Floppy Boot Stomp.flac
- 44100 16 s 2 04:48   12724320  958 0.818634 02. Tropical Hot Dog Night.flac
- 44100 16 s 2 03:37    9600276  952 0.910550 03. Ice Rose.flac
- 44100 16 s 2 03:42    9813720  826 0.868317 04. Harry Irene.flac
- 44100 16 s 2 03:14    8571864  919 0.901852 05. You Know You're A Man.flac
- 44100 16 s 2 05:27   14427756  883 0.953856 06. Bat Chain Puller.flac
- 44100 16 s 2 05:03   13400520  876 1.000000 07. When I See Mommy I Feel Like A Mummy.flac
- 44100 16 s 2 04:06   10889760  914 1.000000 08. Owed T'Alex.flac
- 44100 16 s 2 03:24    9008160  883 0.936399 09. Candle Mambo.flac
- 44100 16 s 2 05:03   13374060  785 0.833496 10. Love Lies.flac
- 44100 16 s 2 04:25   11692380  886 0.963134 11. Suction Prints.flac
- 44100 16 s 2 00:40    1774584  654 0.381744 12. Apes-Ma.flac
-              47:25  125464500  872 1.000000 12 files
+[mark@arch 1978-Shiny-Beast-(Bat-Chain-Puller)]$ lsa -tbp
+rate   B  f # mm:ss kbps peak     file
+ 44100 16 s 2 03:51  932 0.896606 01. The Floppy Boot Stomp.flac
+ 44100 16 s 2 04:48  958 0.818634 02. Tropical Hot Dog Night.flac
+ 44100 16 s 2 03:37  952 0.910550 03. Ice Rose.flac
+ 44100 16 s 2 03:42  826 0.868317 04. Harry Irene.flac
+ 44100 16 s 2 03:14  919 0.901852 05. You Know You're A Man.flac
+ 44100 16 s 2 05:27  883 0.953856 06. Bat Chain Puller.flac
+ 44100 16 s 2 05:03  876 1.000000 07. When I See Mommy I Feel Like A Mummy.flac
+ 44100 16 s 2 04:06  914 1.000000 08. Owed T'Alex.flac
+ 44100 16 s 2 03:24  883 0.936399 09. Candle Mambo.flac
+ 44100 16 s 2 05:03  785 0.833496 10. Love Lies.flac
+ 44100 16 s 2 04:25  886 0.963134 11. Suction Prints.flac
+ 44100 16 s 2 00:40  654 0.381744 12. Apes-Ma.flac
+              47:25  872 1.000000 12 files
 ```
 
 This is minimal, lightweight, console, Unix-style program to list various
