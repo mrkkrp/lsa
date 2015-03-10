@@ -4,18 +4,18 @@
 [mark@arch 1978-Shiny-Beast-(Bat-Chain-Puller)]$ lsa -tbp
 rate   B  f # mm:ss kbps peak     file
  44100 16 s 2 03:51  932 0.896606 01. The Floppy Boot Stomp.flac
- 44100 16 s 2 04:48  958 0.818634 02. Tropical Hot Dog Night.flac
- 44100 16 s 2 03:37  952 0.910550 03. Ice Rose.flac
- 44100 16 s 2 03:42  826 0.868317 04. Harry Irene.flac
- 44100 16 s 2 03:14  919 0.901852 05. You Know You're A Man.flac
- 44100 16 s 2 05:27  883 0.953856 06. Bat Chain Puller.flac
- 44100 16 s 2 05:03  876 1.000000 07. When I See Mommy I Feel Like A Mummy.flac
- 44100 16 s 2 04:06  914 1.000000 08. Owed T'Alex.flac
- 44100 16 s 2 03:24  883 0.936399 09. Candle Mambo.flac
+ 44100 16 s 2 04:49  959 0.818634 02. Tropical Hot Dog Night.flac
+ 44100 16 s 2 03:38  952 0.910522 03. Ice Rose.flac
+ 44100 16 s 2 03:43  827 0.868317 04. Harry Irene.flac
+ 44100 16 s 2 03:14  919 0.901825 05. You Know You're A Man.flac
+ 44100 16 s 2 05:27  883 0.953827 06. Bat Chain Puller.flac
+ 44100 16 s 2 05:04  877 1.000000 07. When I See Mommy I Feel Like A Mummy.flac
+ 44100 16 s 2 04:07  915 1.000000 08. Owed T'Alex.flac
+ 44100 16 s 2 03:24  884 0.936371 09. Candle Mambo.flac
  44100 16 s 2 05:03  785 0.833496 10. Love Lies.flac
- 44100 16 s 2 04:25  886 0.963134 11. Suction Prints.flac
+ 44100 16 s 2 04:25  886 0.963104 11. Suction Prints.flac
  44100 16 s 2 00:40  654 0.381744 12. Apes-Ma.flac
-              47:25  872 1.000000 12 files
+              47:25  887 1.000000 12 files
 ```
 
 This is minimal, lightweight, console, Unix-style program to list various
