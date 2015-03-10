@@ -21,8 +21,8 @@
 
 /* global variables */
 
-long sep_pos,  /* this value is set from 'main', it's index of the first char
-                  of base name part of full name of file */
+long sep_pos,  /* this value is set from `main', it's index of the first
+                  char of base name part of full name of file */
   items_total, /* total number of files found in target directory */
   prc_index; /* index of file to process */
 struct dirent **items; /* these structures hold information about files in
@@ -32,9 +32,8 @@ pthread_mutex_t lock;  /* mutex lock */
 struct audio_params **outputs; /* vector of pointers to structures that
                                   contain descriptions for individual
                                   files */
-/* command line options (flags) */
 int op_help, op_license, op_version, op_total, op_frames, op_kbps, op_peak,
-  op_comp;
+  op_comp; /* command line options (flags) */
 
 /* structures & constants */
 
@@ -91,7 +90,7 @@ int main (int argc, char **argv)
       fprintf (stderr, "lsa: the CPU doesn't support SSE and SSE2\n");
       return EXIT_FAILURE;
     }
-  /* First, we process command line options with 'getopt_long', see
+  /* First, we process command line options with `getopt_long', see
      documentation for this function to understand what's going on here. */
   int opt;
   while ((opt = getopt_long (argc, argv, "+tfbpc", options, NULL)) != -1)
@@ -124,7 +123,7 @@ int main (int argc, char **argv)
       return EXIT_SUCCESS;
     }
   /* Find out current working directory, max length of string to hold full
-     file name, set 'sepPos'. */
+     file name, set `sepPos'. */
   char *temp = optind < argc ? *(argv + optind) : getcwd (NULL, 0);
   long temp_len = strlen (temp);
   if (!temp_len)
@@ -160,7 +159,7 @@ int main (int argc, char **argv)
   outputs = malloc (sizeof (struct audioParams *) * items_total);
   /* Get number of cores, start a thread per core, every thread gets string
      with copy of working directory, the string should have enough space to
-     'strcat' base names to it later. We also need to allocate enough space
+     `strcat' base names to it later. We also need to allocate enough space
      for a vector of all thread ids. */
   long ncores = sysconf (_SC_NPROCESSORS_ONLN);
   pthread_t *tidv = malloc (sizeof (pthread_t) * ncores);
@@ -173,7 +172,7 @@ int main (int argc, char **argv)
     }
   /* Wait for all threads to finish using vector of ids. Now free the
      vector, free directory items, and entire vector of these items. Free
-     original working directory. Also, destroy mutex. */
+     original working directory and destroy mutex. */
   for (i = 0; i < ncores; i++)
     {
       pthread_join (*(tidv + i), NULL);
@@ -184,7 +183,7 @@ int main (int argc, char **argv)
   /* Now, it's time to sort our strings and print results. */
   qsort (outputs, items_total, sizeof (struct audioParams *), cmpstrp);
   /* Here we determine if we should display hours + some auxiliary
-     calculations for '--total' option. */
+     calculations for `--total' option. */
   char show_hours = 0;
   double total_secs = 0;
   AFframecount total_frames = 0;
@@ -233,7 +232,7 @@ int main (int argc, char **argv)
           free (p);
         }
     }
-  /* Print totals (optionally). */
+  /* Optionally print totals. */
   if (op_total)
     {
       int dur_h, dur_m, dur_s;
@@ -248,7 +247,7 @@ int main (int argc, char **argv)
       printf ("%ld file%s\n", items_total, items_total == 1 ? "" : "s");
     }
   free (outputs);
-  /* Free items, freedom must be given to everyone. */
+  /* Free items. */
   for (i = 0; i < items_total; i++)
     {
       free (*(items + i));
@@ -261,11 +260,11 @@ int main (int argc, char **argv)
 
 static void *run_thread (void *dir)
 /* This function describes behavior of an individual thread. It takes new
-   item from vector of items (if there's any), updates name of file 'dir',
-   calls function 'analyzeFile' with this name and takes result of this
-   call. Note that 'analyzeFile' allocates memory for its result structure
-   with 'malloc'. Finally this routine copies pointer to result structure to
-   'outputs'. */
+   item from vector of items (if there's any), updates name of file `dir',
+   calls function `analyzeFile' with this name and takes result of this
+   call. Note that `analyzeFile' allocates memory for its result structure
+   with `malloc'. Finally this routine copies pointer to result structure to
+   `outputs'. */
 {
   while (prc_index < items_total)
     {
@@ -291,7 +290,7 @@ static const char *get_ext (const char *arg)
 }
 
 static int ext_filter (const struct dirent *arg)
-/* This function filters every item of type 'struct dirent'. It only accepts
+/* This function filters every item of type `struct dirent'. It only accepts
    regular files and links and those items must have one of supported
    extensions. */
 {
@@ -306,7 +305,7 @@ static int ext_filter (const struct dirent *arg)
 }
 
 static int cmpstrp (const void *a, const void *b)
-/* This is wrapper around 'strcmp' to sort output structures with 'qsort'. */
+/* This is wrapper around `strcmp' to sort output structures with `qsort'. */
 {
   return strcmp((**(struct audio_params **)a).name,
                 (**(struct audio_params **)b).name);

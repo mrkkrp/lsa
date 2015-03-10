@@ -34,10 +34,10 @@ static float peak_double (void *, AFframecount);
 /* definitions */
 
 struct audio_params *analyze_file (char *path)
-/* This is the place where all the analyze happens. We take 'path', open
-   file on this path with AudioFile library, allocate memory for 'struct
+/* This is the place where all the analyze happens. We take `path', open
+   file on this path with AudioFile library, allocate memory for `struct
    audioParams', assign calculated values and return pointer to this
-   structure. If we return 'NULL', this item will be ignored. */
+   structure. If we return `NULL', this item will be ignored. */
 {
   AFfilehandle h = afOpenFile ((const char *)path, "r", NULL);
   if (h == AF_NULL_FILEHANDLE) return NULL;
@@ -51,7 +51,7 @@ struct audio_params *analyze_file (char *path)
     afGetTrackBytes (h, AF_DEFAULT_TRACK) / (result->duration * 125);
   if (op_comp)
     result->compression = afGetCompression (h, AF_DEFAULT_TRACK);
-  if (op_peak) /* check if any options that requires calculations on frames
+  if (op_peak) /* check if any options that require calculations on frames
                   are supplied */
     {
       void *frames = NULL;
