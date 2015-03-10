@@ -69,7 +69,7 @@ static const char *get_ext(const char *);
 static int ext_filter (const struct dirent *);
 static int cmpstrp (const void *, const void *);
 static char decode_format (int);
-static void decompose_time (long, int *, int *, int *);
+static void decompose_time (double, int *, int *, int *);
 static char *decode_comp (int);
 
 /* main */
@@ -184,22 +184,20 @@ int main (int argc, char **argv)
   qsort (outputs, items_total, sizeof (struct audioParams *), cmpstrp);
   /* Here we determine if we should display hours + some auxiliary
      calculations for `--total' option. */
-  char show_hours = 0;
-  double total_secs = 0;
   AFframecount total_frames = 0;
-  int total_kbps = 0;
-  float total_peak = 0;
+  char show_hours = 0;
+  double total_dur = 0, total_kbps = 0, total_peak = 0;
   for (i = 0; i < items_total; i++)
     {
       struct audio_params *a = *(outputs + i);
       if (a->duration > 3600) show_hours = 1;
-      total_secs += a->duration;
+      total_dur += a->duration;
       total_frames += a->frames;
-      total_kbps += a->kbps;
+      total_kbps += a->kbps * a->duration;
       if (a->peak > total_peak) total_peak = a->peak;
     }
-  if (op_total && total_secs > 3600) show_hours = 1;
-  if (op_total && items_total) total_kbps /= items_total;
+  if (op_total && total_dur > 3600) show_hours = 1;
+  if (op_total && total_dur) total_kbps /= total_dur;
   /* Print header of our table. */
   printf ("rate   B  f # ");
   if (show_hours) printf ("hh:");
@@ -225,7 +223,7 @@ int main (int argc, char **argv)
           if (show_hours) printf ("%02d:", dur_h);
           printf ("%02d:%02d ", dur_m, dur_s);
           if (op_frames) printf ("%10ld ", p->frames);
-          if (op_kbps) printf ("%4d ", p->kbps);
+          if (op_kbps) printf ("%4d ", (int)round(p->kbps));
           if (op_peak) printf ("%8f ", p->peak);
           if (op_comp) printf ("%11s ", decode_comp (p->compression));
           printf ("%s\n", p->name);
@@ -236,12 +234,12 @@ int main (int argc, char **argv)
   if (op_total)
     {
       int dur_h, dur_m, dur_s;
-      decompose_time ((int)total_secs, &dur_h, &dur_m, &dur_s);
+      decompose_time (total_dur, &dur_h, &dur_m, &dur_s);
       printf ("              ");
       if (show_hours) printf ("%02d:", dur_h);
       printf ("%02d:%02d ", dur_m, dur_s);
       if (op_frames) printf ("%10ld ", total_frames);
-      if (op_kbps) printf ("%4d ", total_kbps);
+      if (op_kbps) printf ("%4d ", (int)round(total_kbps));
       if (op_peak) printf ("%8f ", total_peak);
       if (op_comp) printf ("            ");
       printf ("%ld file%s\n", items_total, items_total == 1 ? "" : "s");
@@ -324,7 +322,7 @@ static char decode_format (int arg)
   return '?';
 }
 
-static void decompose_time (long arg, int *h, int *m, int *s)
+static void decompose_time (double arg, int *h, int *m, int *s)
 /* Extract number of hours, minutes, and seconds from given total number of
    seconds. */
 {
@@ -332,7 +330,7 @@ static void decompose_time (long arg, int *h, int *m, int *s)
   arg -= *h * 3600;
   *m = arg / 60; /* minutes */
   arg -= *m * 60;
-  *s = arg; /* seconds */
+  *s = round(arg); /* seconds */
 }
 
 static char *decode_comp (int arg)

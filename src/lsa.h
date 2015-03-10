@@ -24,6 +24,7 @@
 #include <stdio.h>     /* printf */
 #include <stdint.h>    /* intN_t things */
 #include <getopt.h>    /* getopt_long */
+#include <math.h>      /* round */
 #include <sys/stat.h>  /* stat */
 #include <dirent.h>    /* scan directories */
 #include <unistd.h>    /* getcwd, sysconf */
@@ -71,11 +72,11 @@ struct audio_params /* this structure contains various parameters of files
   AFframecount frames;
   char *name;
   double duration;
-  float peak;
+  double kbps;
+  double peak;
   int channels;
   int compression;
   int format;
-  int kbps;
   int rate;
   int width;
 };

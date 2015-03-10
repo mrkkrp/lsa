@@ -19,7 +19,7 @@
 .PHONY : clear
 
 build/lsa : src/main.o src/analyze.o
-	gcc -msse -msse2 -laudiofile -lpthread -o build/lsa \
+	gcc -msse -msse2 -laudiofile -lpthread -lm -o build/lsa \
 	build/main.o build/analyze.o
 
 src/main.o :

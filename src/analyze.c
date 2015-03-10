@@ -21,15 +21,15 @@
 
 /* declarations */
 
-static float get_peak    (void *, AFframecount, int, int);
-static float peak_int32  (void *, AFframecount);
-static float peak_int16  (void *, AFframecount);
-static float peak_int8   (void *, AFframecount);
-static float peak_uint32 (void *, AFframecount);
-static float peak_uint16 (void *, AFframecount);
-static float peak_uint8  (void *, AFframecount);
-static float peak_float  (void *, AFframecount);
-static float peak_double (void *, AFframecount);
+static double get_peak    (void *, AFframecount, int, int);
+static double peak_int32  (void *, AFframecount);
+static double peak_int16  (void *, AFframecount);
+static double peak_int8   (void *, AFframecount);
+static double peak_uint32 (void *, AFframecount);
+static double peak_uint16 (void *, AFframecount);
+static double peak_uint8  (void *, AFframecount);
+static double peak_float  (void *, AFframecount);
+static double peak_double (void *, AFframecount);
 
 /* definitions */
 
@@ -84,7 +84,7 @@ struct audio_params *analyze_file (char *path)
   return result;
 }
 
-static float get_peak (void *frames, AFframecount c, int format, int width)
+static double get_peak (void *frames, AFframecount c, int format, int width)
 {
   if (format == AF_SAMPFMT_TWOSCOMP)
     {
@@ -103,7 +103,7 @@ static float get_peak (void *frames, AFframecount c, int format, int width)
   return 0;
 }
 
-static float peak_int32 (void *frames, AFframecount c)
+static double peak_int32 (void *frames, AFframecount c)
 {
   /* Doing trivial things here, because we use only SSE and SSE2 here, but
      necessary instructions for this format of samples are only in
@@ -116,14 +116,12 @@ static float peak_int32 (void *frames, AFframecount c)
       if (a > tmp0) tmp0 = a;
       if (a < tmp1) tmp1 = a;
     }
-  float tp0 = tmp0;
-  tp0 /= tmp0 < 0 ? -0x80000000 : 0x7fffffff;
-  float tp1 = tmp1;
-  tp1 /= tmp1 < 0 ? -0x80000000 : 0x7fffffff;
+  double tp0 = fabs(tmp0) / 0x80000000;
+  double tp1 = fabs(tmp1) / 0x80000000;
   return tp0 > tp1 ? tp0 : tp1;
 }
 
-static float peak_int16 (void *frames, AFframecount c)
+static double peak_int16 (void *frames, AFframecount c)
 {
   AFframecount t = c / 8;
   __m128i *src = (__m128i *)frames;
@@ -142,7 +140,7 @@ static float peak_int16 (void *frames, AFframecount c)
   } mx0, mx1;
   mx0.m = m0;
   mx1.m = m1;
-  float tmp0 = 0, tmp1 = 0;
+  double tmp0 = 0, tmp1 = 0;
   for (i = 0; i < 8; i++)
     {
       int16_t a = *(mx0.n + i);
@@ -156,12 +154,12 @@ static float peak_int16 (void *frames, AFframecount c)
       if (a > tmp0) tmp0 = a;
       if (a < tmp1) tmp1 = a;
     }
-  tmp0 /= tmp0 < 0 ? -0x8000 : 0x7fff;
-  tmp1 /= tmp1 < 0 ? -0x8000 : 0x7fff;
+  tmp0 = fabs(tmp0) / 0x8000;
+  tmp1 = fabs(tmp1) / 0x8000;
   return tmp0 > tmp1 ? tmp0 : tmp1;
 }
 
-static float peak_int8 (void *frames, AFframecount c)
+static double peak_int8 (void *frames, AFframecount c)
 {
   /* need SSE4.1 */
   register AFframecount i;
@@ -172,14 +170,12 @@ static float peak_int8 (void *frames, AFframecount c)
       if (a > tmp0) tmp0 = a;
       if (a < tmp1) tmp1 = a;
     }
-  float tp0 = tmp0;
-  tp0 /= tmp0 < 0 ? -0x80 : 0x7f;
-  float tp1 = tmp1;
-  tp1 /= tmp1 < 0 ? -0x80 : 0x7f;
+  double tp0 = fabs(tmp0) / 0x80;
+  double tp1 = fabs(tmp1) / 0x80;
   return tp0 > tp1 ? tp0 : tp1;
 }
 
-static float peak_uint32 (void *frames, AFframecount c)
+static double peak_uint32 (void *frames, AFframecount c)
 {
   /* need SSE4.1 */
   register AFframecount i;
@@ -189,11 +185,11 @@ static float peak_uint32 (void *frames, AFframecount c)
       uint32_t a = *((uint32_t *)frames + i);
       if (a > tmp0) tmp0 = a;
     }
-  float tp0 = tmp0;
+  double tp0 = tmp0;
   return tp0 / 0xffffffff;
 }
 
-static float peak_uint16 (void *frames, AFframecount c)
+static double peak_uint16 (void *frames, AFframecount c)
 {
   /* need SSE4.1 */
   register AFframecount i;
@@ -203,11 +199,11 @@ static float peak_uint16 (void *frames, AFframecount c)
       uint16_t a = *((uint16_t *)frames + i);
       if (a > tmp0) tmp0 = a;
     }
-  float tp0 = tmp0;
+  double tp0 = tmp0;
   return tp0 / 0xffff;
 }
 
-static float peak_uint8 (void *frames, AFframecount c)
+static double peak_uint8 (void *frames, AFframecount c)
 {
   AFframecount t = c / 16;
   __m128i *src = (__m128i *)frames;
@@ -223,7 +219,7 @@ static float peak_uint8 (void *frames, AFframecount c)
     uint8_t n[16];
   } mx0;
   mx0.m = m0;
-  float tmp0 = 0;
+  double tmp0 = 0;
   for (i = 0; i < 8; i++)
     {
       uint8_t a = *(mx0.n + i);
@@ -237,7 +233,7 @@ static float peak_uint8 (void *frames, AFframecount c)
   return tmp0 / 0xff;
 }
 
-static float peak_float (void *frames, AFframecount c)
+static double peak_float (void *frames, AFframecount c)
 {
   AFframecount t = c / 4;
   __m128 *src = (__m128 *)frames;
@@ -256,7 +252,7 @@ static float peak_float (void *frames, AFframecount c)
   } mx0, mx1;
   mx0.m = m0;
   mx1.m = m1;
-  float tmp0 = 0, tmp1 = 0;
+  double tmp0 = 0, tmp1 = 0;
   for (i = 0; i < 8; i++)
     {
       float a = *(mx0.n + i);
@@ -270,12 +266,12 @@ static float peak_float (void *frames, AFframecount c)
       if (a > tmp0) tmp0 = a;
       if (a < tmp1) tmp1 = a;
     }
-  if (tmp0 < 0) tmp0 *= -1;
-  if (tmp1 < 0) tmp1 *= -1;
+  tmp0 = fabs(tmp0);
+  tmp1 = fabs(tmp1);
   return tmp0 > tmp1 ? tmp0 : tmp1;
 }
 
-static float peak_double (void *frames, AFframecount c)
+static double peak_double (void *frames, AFframecount c)
 {
   AFframecount t = c / 2;
   __m128d *src = (__m128d *)frames;
@@ -294,7 +290,7 @@ static float peak_double (void *frames, AFframecount c)
   } mx0, mx1;
   mx0.m = m0;
   mx1.m = m1;
-  float tmp0 = 0, tmp1 = 0;
+  double tmp0 = 0, tmp1 = 0;
   for (i = 0; i < 8; i++)
     {
       double a = *(mx0.n + i);
@@ -308,7 +304,7 @@ static float peak_double (void *frames, AFframecount c)
       if (a > tmp0) tmp0 = a;
       if (a < tmp1) tmp1 = a;
     }
-  if (tmp0 < 0) tmp0 *= -1;
-  if (tmp1 < 0) tmp1 *= -1;
+  tmp0 = fabs(tmp0);
+  tmp1 = fabs(tmp1);
   return tmp0 > tmp1 ? tmp0 : tmp1;
 }
