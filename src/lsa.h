@@ -61,8 +61,8 @@
   "  -p,--peak               Show peak per file\n"                      \
   "  -c,--compression        Show compression scheme per file\n"
 
-#define BASENAME_MAX_LEN     256 /* according to definition of 'd_name'
-                                    field in 'struct dirent' */
+#define BASENAME_MAX_LEN     256 /* according to definition of `d_name'
+                                    field in `struct dirent' */
 
 /* structures */
 
