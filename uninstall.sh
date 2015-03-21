@@ -1,4 +1,4 @@
-#!/bin/ba
+#!/bin/sh
 #
 # LSA Uninstallation Script
 #
