@@ -20,7 +20,6 @@
 ### constants
 
 I_DIRS="/usr/share/licenses/lsa"
-I_ITEMS="/usr/{bin/lsa,share/man/man1/lsa.1.gz,share/licenses/lsa}"
 
 ### functions
 
