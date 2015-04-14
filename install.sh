@@ -57,7 +57,7 @@ fi
 # 4. copying new files
 
 echo 'copying new files...'
-install -vDm755 build/lsa    /usr/bin/
+install -vsDm755 build/lsa   /usr/bin/
 install -vDm644 LICENSE.md   /usr/share/licenses/lsa/
 install -vDm644 doc/lsa.1.gz /usr/share/man/man1/
 echo 'copying new files: ok'
