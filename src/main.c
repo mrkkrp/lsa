@@ -29,6 +29,7 @@ struct dirent **items; /* these structures hold information about files in
                           target directory that are suitable for
                           processing */
 pthread_mutex_t lock;  /* mutex lock */
+extern int optind; /* index of the next element to be processed by `getopt*/
 struct audio_params **outputs; /* vector of pointers to structures that
                                   contain descriptions for individual
                                   files */
