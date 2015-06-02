@@ -144,7 +144,7 @@ int main (int argc, char **argv)
     }
   else sep_pos = temp_len;
   if (optind >= argc) free (temp);
-  /* First of all, we should check if the given directory exist. */
+  /* First of all, we should check if the given directory exists. */
   struct stat sb;
   if (!(stat (wdir, &sb) == 0 && S_ISDIR (sb.st_mode)))
     {
@@ -172,15 +172,14 @@ int main (int argc, char **argv)
       pthread_create (tidv + i, NULL, run_thread, temp);
     }
   /* Wait for all threads to finish using vector of ids. Now free the
-     vector, free directory items, and entire vector of these items. Free
-     original working directory and destroy mutex. */
+     vector and working directory, destroy mutex. */
   for (i = 0; i < ncores; i++)
     {
       pthread_join (*(tidv + i), NULL);
     }
-  pthread_mutex_destroy(&lock);
   free (tidv);
   free (wdir);
+  pthread_mutex_destroy(&lock);
   /* Now, it's time to sort our strings and print results. */
   qsort (outputs, items_total, sizeof (struct audioParams *), cmpstrp);
   /* Here we determine if we should display hours + some auxiliary
@@ -245,8 +244,10 @@ int main (int argc, char **argv)
       if (op_comp) printf ("            ");
       printf ("%ld file%s\n", items_total, items_total == 1 ? "" : "s");
     }
+  /* Now that we're done displaying information, we can free vector of
+     output structures (structures are already freed, see above). */
   free (outputs);
-  /* Free items. */
+  /* Free directory items. */
   for (i = 0; i < items_total; i++)
     {
       free (*(items + i));
