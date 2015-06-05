@@ -1,7 +1,0 @@
-language: c
-install:
-  - sudo apt-get -qq update
-  - sudo apt-get -qq install libaudiofile-dev libaudiofile1
-script: make
-notifications:
-  email: false
