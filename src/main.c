@@ -328,11 +328,12 @@ static void decompose_time (double arg, int *h, int *m, int *s)
 /* Extract number of hours, minutes, and seconds from given total number of
    seconds. */
 {
-  *h = arg / 3600; /* hours */
-  arg -= *h * 3600;
-  *m = arg / 60; /* minutes */
-  arg -= *m * 60;
-  *s = round(arg); /* seconds */
+  double t = round(arg);
+  *h = t / 3600; /* hours */
+  t -= *h * 3600;
+  *m = t / 60; /* minutes */
+  t -= *m * 60;
+  *s = t; /* seconds */
 }
 
 static char *decode_comp (int arg)
