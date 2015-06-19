@@ -75,7 +75,9 @@ The program currently is capable to display the following parameters:
 ## Installation
 
 1. Install Audio File library;
+
 2. Chances are you already have GCC and GNU make, but if you don't, get them;
+
 3. Download and untar git repository of LSA, or clone it:
 
    ```
