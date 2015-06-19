@@ -124,7 +124,7 @@ int main (int argc, char **argv)
       return EXIT_SUCCESS;
     }
   /* Find out current working directory, max length of string to hold full
-     file name, set `sepPos'. */
+     file name, set `sep_pos'. */
   char *temp = optind < argc ? *(argv + optind) : getcwd (NULL, 0);
   long temp_len = strlen (temp);
   if (!temp_len)
