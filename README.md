@@ -81,7 +81,7 @@ The program currently is capable to display the following parameters:
 3. Download and untar git repository of LSA, or clone it:
 
    ```
-   $ git clone https://github.com/mrkkrp/lsa.git master
+   $ git clone https://github.com/mrkkrp/lsa.git
    ```
 
 4. Go to the root directory of the repository and execute:
