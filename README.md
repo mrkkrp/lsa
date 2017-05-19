@@ -18,10 +18,10 @@ rate   B  f # mm:ss kbps peak     file
               47:25  887 1.000000 12 files
 ```
 
-This is minimal, lightweight, console, Unix-style program to list various
-parameters of audio files. It works like `ls` command displaying parameters
-of files in current (or specified) directory. This program is written to
-work with collection of files as a whole.
+This is a minimal, lightweight, console program to list various parameters
+of audio files. It works like the `ls` command displaying parameters of
+files in current (or specified) directory. This program is written to work
+with collection of files as a whole.
 
 ## Requirements
 
@@ -30,8 +30,8 @@ old CPU it won't work). Also, your OS must support these intrinsics.
 
 ## Supported Formats
 
-LSA is built on top of Audio File library, so it inherits its list of
-supported file formats:
+LSA is built on top of the Audio File library, and so it inherits its list
+of supported file formats:
 
 * AIFF/AIFF-C (.aiff, .aifc)
 * WAVE (.wav)
@@ -55,7 +55,7 @@ Supported compression formats:
 
 ## Features
 
-The program currently is capable to display the following parameters:
+The program is currently capable of displing the following parameters:
 
 * sample rate;
 * sample width;
@@ -95,6 +95,6 @@ The program currently is capable to display the following parameters:
 
 ## License
 
-Copyright © 2014, 2015 Mark Karpov
+Copyright © 2014–2017 Mark Karpov
 
 Distributed under GNU GRL, version 3.
